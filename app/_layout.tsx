@@ -37,9 +37,7 @@ export default function RootLayout() {
             options={{
               title: 'Albums',
             }} />
-          <Stack.Screen name="album/[id]" options={{
-            title: 'Album',
-          }} />
+          <Stack.Screen name="album/[id]" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemedView>

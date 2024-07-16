@@ -1,5 +1,8 @@
 
+import { ThemedRefreshControl } from '@/components/ThemedRefreshControls';
 import { ThemedText } from '@/components/ThemedText';
+import { FlashList } from "@shopify/flash-list";
+import { Image } from 'expo-image';
 import {
   Album,
   Asset,
@@ -8,92 +11,79 @@ import {
   usePermissions,
 } from 'expo-media-library';
 import { Link } from 'expo-router';
-import { forwardRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Image,
   Pressable,
-  ScrollView,
-  StyleSheet,
-  View
+  StyleSheet
 } from 'react-native';
 
+type AlbumThumb = Album & { thumbnail: Asset };
 
 export default function App() {
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const [refreshing, setRefreshing] = useState(true);
+  const [albums, setAlbums] = useState<AlbumThumb[]>([]);
   const [permissionResponse, requestPermission] = usePermissions();
 
-  useEffect(() => {
-    async function getAlbums() {
-      if (permissionResponse?.status !== 'granted') {
-        await requestPermission();
-      }
-      const fetchedAlbums = await getAlbumsAsync({
-        includeSmartAlbums: true,
-      });
-      setAlbums(fetchedAlbums);
+  const getAlbumThumbnails = async () => {
+    setRefreshing(true);
+    if (permissionResponse?.status !== 'granted') {
+      await requestPermission();
     }
-    getAlbums();
+    const fetchedAlbums = await getAlbumsAsync();
+    const albumThumbnails = (await Promise.all(
+      fetchedAlbums.map(async (album) => {
+        const albumThumbnail = await getAssetsAsync({ album, mediaType: ["photo", "video"] });
+        return { ...album, thumbnail: albumThumbnail.assets[0] };
+      })
+    )).filter((album) => album.thumbnail) as AlbumThumb[];
+    setAlbums(albumThumbnails);
+    setRefreshing(false);
+  }
+
+  useEffect(() => {
+    getAlbumThumbnails()
   }, []);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {albums &&
-          albums.map((album) => (
-            <Link key={album.id} href={`/album/${album.id}`} asChild>
-              <AlbumEntry key={album.id} album={album} />
-            </Link>
-          ))
-        }
-      </View>
-    </ScrollView>
+    <FlashList
+      data={albums}
+      renderItem={({ item }) => <AlbumEntry album={item} />}
+      keyExtractor={(item) => item.id}
+      numColumns={3}
+      estimatedItemSize={50}
+      refreshControl={
+        <ThemedRefreshControl refreshing={refreshing} onRefresh={getAlbumThumbnails} />
+      }
+    />
   );
 };
 
 
-const AlbumEntry = forwardRef(function AlbumEntry({ album, ...rest }: { album: Album }, ref: React.ForwardedRef<View>) {
-  const [thumbnail, setThumbnail] = useState<Asset | null>(null);
-
-  useEffect(() => {
-    async function getThumbnail() {
-      const albumThumbnail = await getAssetsAsync({ album, first: 1, sortBy: 'modificationTime' });
-      setThumbnail(albumThumbnail.assets[0]);
-    }
-    getThumbnail();
-  }, [album]);
-
-  if (!thumbnail) {
-    return null;
-  }
-
+const AlbumEntry = ({ album }: { album: AlbumThumb }) => {
   return (
-    <Pressable {...rest} style={styles.albumContainer} ref={ref} >
-      <Image
-        source={{ uri: thumbnail?.uri }}
-        style={{ width: "100%", aspectRatio: 1 }}
-      />
-      <ThemedText type='defaultSemiBold' numberOfLines={1}>
-        {album.title}
-      </ThemedText>
-      <ThemedText type='small' numberOfLines={1} style={{ opacity: 0.7 }}>
-        {album.assetCount}
-      </ThemedText>
-    </Pressable>
+    <Link key={album.id} href={{ pathname: `/album/${album.id}`, params: { title: album.title, count: album.assetCount } }} asChild>
+      <Pressable style={styles.albumContainer} >
+        <Image
+          source={{ uri: album.thumbnail?.uri }}
+          style={{ width: "100%", aspectRatio: 1 }}
+        />
+        <ThemedText type='defaultSemiBold' numberOfLines={1}>
+          {album.title}
+        </ThemedText>
+        <ThemedText type='small' numberOfLines={1} style={{ opacity: 0.7 }}>
+          {album.assetCount}
+        </ThemedText>
+      </Pressable>
+    </Link >
   );
-})
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-  },
   albumContainer: {
-    width: "30%",
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: 3,
+    gap: 2,
     paddingBottom: 10,
+    paddingHorizontal: 3,
   },
 });
