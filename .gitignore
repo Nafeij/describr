@@ -9,9 +9,11 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-android/
-ios/
+/android
+/ios
 
+/modules/intent-manager/android/.gradle
+/modules/intent-manager/android/build
 # macOS
 .DS_Store
 

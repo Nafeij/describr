@@ -16,7 +16,7 @@ import {
   Pressable,
   StyleSheet
 } from 'react-native';
-
+import { getIntent } from '@/modules/intent-manager';
 type AlbumThumb = Album & { thumbnail: Asset };
 
 export default function App() {
@@ -45,6 +45,8 @@ export default function App() {
   }, []);
 
   return (
+    <>
+    <ThemedText type='title'>{JSON.stringify(getIntent())}</ThemedText>
     <FlashList
       data={albums}
       renderItem={({ item }) => <AlbumEntry album={item} />}
@@ -55,6 +57,7 @@ export default function App() {
         <ThemedRefreshControl refreshing={refreshing} onRefresh={getAlbumThumbnails} />
       }
     />
+    </>
   );
 };
 

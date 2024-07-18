@@ -20,7 +20,6 @@
     "@shopify/flash-list": "1.6.4",
     "expo": "~51.0.20",
     "expo-constants": "~16.0.2",
-    "expo-dev-client": "~4.0.20",
     "expo-font": "~12.0.8",
     "expo-image": "~1.12.12",
     "expo-linking": "~6.3.1",
