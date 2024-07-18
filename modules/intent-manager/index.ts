@@ -1,8 +1,9 @@
-import { NativeModulesProxy, EventEmitter, Subscription } from 'expo-modules-core';
+// import { NativeModulesProxy, EventEmitter, Subscription } from 'expo-modules-core';
 
 // Import the native module. On web, it will be resolved to IntentManager.web.ts
 // and on native platforms to IntentManager.ts
-import IntentManagerModule from './src/IntentManagerModule';
+import { Intent, ResultOptions } from "./src/IntentManager.types";
+import IntentManagerModule from "./src/IntentManagerModule";
 // import { ChangeEventPayload } from './src/IntentManager.types';
 
 // Get the native constant value.
@@ -28,6 +29,12 @@ import IntentManagerModule from './src/IntentManagerModule';
 
 // export { ChangeEventPayload };
 
-export function getIntent(): Object {
+export function getIntent(): Intent {
   return IntentManagerModule.getIntent();
 }
+
+export function setResult(options: ResultOptions): void {
+  IntentManagerModule.setResult(options);
+}
+
+export { ResultOptions };
