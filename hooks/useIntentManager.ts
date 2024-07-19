@@ -9,7 +9,7 @@ import {
   getContentUriAsync,
   getInfoAsync,
 } from "expo-file-system";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useIntentManager() {
   const [intent] = useState(getIntent);
@@ -28,5 +28,8 @@ export function useIntentManager() {
     },
     []
   );
+  useEffect(() => {
+    console.log(intent);
+  }, [intent]);
   return { intent, setResult };
 }

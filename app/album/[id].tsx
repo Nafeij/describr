@@ -5,7 +5,7 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Asset, getAssetsAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 
 // import { FlashList } from "@shopify/flash-list";
@@ -55,23 +55,17 @@ export default function AlbumList() {
 
 function AssetEntry({ asset }: { asset: Asset }) {
     const { intent, setResult } = useIntentManager();
-    if (intent.action !== ActivityAction.GET_CONTENT) {
-        return (<Image
-            style={{ flex: 1, aspectRatio: 1 }}
-            source={{ uri: asset.uri }}
-            recyclingKey={asset.id}
-            autoplay={false}
-        />)
-    }
+    const onPress = useCallback(() => {
+        setResult({
+            isOK: true,
+            uri: asset.uri
+        });
+    }, [asset]);
     return (
         <TouchableOpacity
             style={{ flex: 1, aspectRatio: 1 }}
-            onPress={() => {
-                setResult({
-                    isOK: true,
-                    uri: asset.uri
-                });
-            }}
+            onPress={onPress}
+            disabled={intent?.action === ActivityAction.GET_CONTENT}
         >
             <Image
                 style={{ flex: 1 }}

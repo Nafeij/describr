@@ -22,20 +22,6 @@
       },
       "intentFilters": [
         {
-          "action": "PICK",
-          "data": [
-            {
-              "mimeType": "image/*"
-            },
-            {
-              "mimeType": "video/*"
-            }
-          ],
-          "category": [
-            "DEFAULT"
-          ]
-        },
-        {
           "action": "GET_CONTENT",
           "data": [
             {
