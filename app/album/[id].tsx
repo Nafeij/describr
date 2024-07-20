@@ -1,12 +1,13 @@
 import { ThemedRefreshControl } from "@/components/ThemedRefreshControls";
+import { ThemedView } from "@/components/ThemedView";
 import { useIntentManager } from "@/hooks/useIntentManager";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Asset, getAssetsAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable } from "react-native";
 
 // import { FlashList } from "@shopify/flash-list";
 
@@ -33,13 +34,13 @@ export default function AlbumList() {
     }, []);
 
     return (
-        <>
+        <ThemedView style={{ flex: 1 }}>
             <Stack.Screen options={{
-                title: title ?? 'Untitled Album'
+                title: title ?? 'Untitled Album',
             }} />
             <FlashList
                 data={assets}
-                renderItem={({ item }) => <AssetEntry asset={item} />}
+                renderItem={({ item }) => <AssetEntry {...item} />}
                 keyExtractor={(item) => item.id}
                 numColumns={4}
                 estimatedItemSize={200}
@@ -49,30 +50,26 @@ export default function AlbumList() {
                 onEndReachedThreshold={1}
                 onEndReached={getPage}
             />
-        </>
+        </ThemedView>
     );
 }
 
-function AssetEntry({ asset }: { asset: Asset }) {
-    const { intent, setResult } = useIntentManager();
-    const onPress = useCallback(() => {
-        setResult({
-            isOK: true,
-            uri: asset.uri
-        });
-    }, [asset]);
+function AssetEntry({ uri, id }: { uri: string, id: string }) {
+    const { intent, setResult, isMatchingType } = useIntentManager();
+    const canSelect = isMatchingType(uri);
+    const selectNeeded = intent?.action === ActivityAction.GET_CONTENT;
     return (
-        <TouchableOpacity
-            style={{ flex: 1, aspectRatio: 1 }}
-            onPress={onPress}
-            disabled={intent?.action === ActivityAction.GET_CONTENT}
+        <Pressable
+            style={({ pressed }) => [{ flex: 1, aspectRatio: 1, opacity: selectNeeded && !canSelect ? 0.5 : 1, padding: pressed ? 8 : 0 }]}
+            onLongPress={() => setResult({ isOK: true, uri })}
+            disabled={!selectNeeded || !canSelect}
         >
             <Image
                 style={{ flex: 1 }}
-                source={{ uri: asset.uri }}
-                recyclingKey={asset.id}
+                source={{ uri }}
+                recyclingKey={id}
                 autoplay={false}
             />
-        </TouchableOpacity>
+        </Pressable>
     );
 }

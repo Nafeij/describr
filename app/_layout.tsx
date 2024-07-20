@@ -32,13 +32,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={theme}>
       <ThemedView style={{ flex: 1 }}>
-        <Stack>
-          <Stack.Screen
-            name="index"
-            options={{
-              title: 'Albums',
-            }} />
-          <Stack.Screen name="album/[id]" />
+        <Stack screenOptions={{
+          headerShown: false,
+        }}>
+          <Stack.Screen name="(home)" />
+          <Stack.Screen name="album" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemedView>

@@ -9,7 +9,8 @@ import {
   getContentUriAsync,
   getInfoAsync,
 } from "expo-file-system";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { lookup } from "react-native-mime-types";
 
 export function useIntentManager() {
   const [intent] = useState(getIntent);
@@ -28,8 +29,22 @@ export function useIntentManager() {
     },
     []
   );
-  useEffect(() => {
-    console.log(intent);
-  }, [intent]);
-  return { intent, setResult };
+  const isMatchingType = useCallback(
+    (uri: string) => {
+      if (!intent.type) return true;
+      const mimeType = lookup(uri);
+      if (!mimeType) return false;
+      const types = intent.extras?.["android.intent.extra.MIME_TYPES"];
+      if (types) {
+        return types.includes(mimeType);
+      }
+      const regex = new RegExp(`^${intent.type.replace("*", ".*")}$`); // ^.*/.*$
+      return regex.test(mimeType);
+    },
+    [intent.type, intent.extras]
+  );
+  // useEffect(() => {
+  //   console.log(intent);
+  // }, [intent]);
+  return { intent, setResult, isMatchingType };
 }

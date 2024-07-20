@@ -1,6 +1,7 @@
 
 import { ThemedRefreshControl } from '@/components/ThemedRefreshControls';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { FlashList } from "@shopify/flash-list";
 import { Image } from 'expo-image';
 import {
@@ -44,16 +45,18 @@ export default function App() {
   }, []);
 
   return (
-    <FlashList
-      data={albums}
-      renderItem={({ item }) => <AlbumEntry album={item} />}
-      keyExtractor={(item) => item.id}
-      numColumns={3}
-      estimatedItemSize={50}
-      refreshControl={
-        <ThemedRefreshControl refreshing={refreshing} onRefresh={getAlbumThumbnails} />
-      }
-    />
+    <ThemedView style={{ flex: 1 }}>
+      <FlashList
+        data={albums}
+        renderItem={({ item }) => <AlbumEntry album={item} />}
+        keyExtractor={(item) => item.id}
+        numColumns={3}
+        estimatedItemSize={50}
+        refreshControl={
+          <ThemedRefreshControl refreshing={refreshing} onRefresh={getAlbumThumbnails} />
+        }
+      />
+    </ThemedView>
   );
 };
 
