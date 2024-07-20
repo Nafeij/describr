@@ -1,18 +1,18 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
-import { router, useLocalSearchParams, usePathname, useSegments } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 
 export const SearchBar = () => {
-    const {query: _query} = useLocalSearchParams<{query: string}>();
+    const { query: _query } = useLocalSearchParams<{ query: string }>();
     const [query, setQuery] = useState(_query);
     const isInSearch = usePathname().endsWith("search");
     const ref = useRef<TextInput>(null);
     const [selected, setSelected] = useState(false);
     const [activeColor, color, backgroundColor] = useThemeColor({}, ['tint', 'icon', 'modal']);
 
-    const clear = useCallback(() => {
+    const clear = () => {
         console.log("clearing query", query);
         if (query) {
             setQuery("");
@@ -21,11 +21,11 @@ export const SearchBar = () => {
         } else {
             router.back();
         }
-    }, [query]);
+    };
 
     useEffect(() => {
         if (query !== _query) {
-            router.setParams({query});
+            router.setParams({ query });
         }
     }, [query]);
 
