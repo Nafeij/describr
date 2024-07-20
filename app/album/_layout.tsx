@@ -1,9 +1,6 @@
 import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
 
 import { useThemeColor } from '@/hooks/useThemeColor';
-
 
 export default function AlbumLayout() {
   const [color, backgroundColor] = useThemeColor({}, ['tint', 'background']);

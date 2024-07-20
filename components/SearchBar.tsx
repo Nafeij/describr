@@ -1,19 +1,26 @@
+import { useDebounce } from "@/hooks/useDebounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
+import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 
 export const SearchBar = () => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
     const [query, setQuery] = useState(_query);
+    const debouncedSetParams = useDebounce({
+        callback: () => {
+            router.setParams({ query });
+        },
+        delay: 200,
+    });
     const isInSearch = usePathname().endsWith("search");
     const ref = useRef<TextInput>(null);
     const [selected, setSelected] = useState(false);
     const [activeColor, color, backgroundColor] = useThemeColor({}, ['tint', 'icon', 'modal']);
 
     const clear = () => {
-        console.log("clearing query", query);
         if (query) {
             setQuery("");
         } else if (ref.current?.isFocused()) {
@@ -25,7 +32,7 @@ export const SearchBar = () => {
 
     useEffect(() => {
         if (query !== _query) {
-            router.setParams({ query });
+            debouncedSetParams();
         }
     }, [query]);
 

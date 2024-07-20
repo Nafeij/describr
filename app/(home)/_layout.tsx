@@ -1,11 +1,7 @@
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-
 import { SearchBar } from '@/components/SearchBar';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 export default function HomeLayout() {
   const [backgroundColor] = useThemeColor({}, ['background']);
