@@ -1,6 +1,4 @@
 import AlbumList from "@/components/AlbumList";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Asset } from "expo-media-library";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback } from "react";

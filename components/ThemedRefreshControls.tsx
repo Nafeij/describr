@@ -3,7 +3,7 @@ import { ActivityIndicator, RefreshControl, RefreshControlProps } from "react-na
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
 export const ThemedActivityIndicator = () => {
-    const color = useThemeColor({}, 'tint');
+    const [color] = useThemeColor({}, ['tint']);
     return <ActivityIndicator color={color} size="large" style={{ paddingVertical: 20 }} />
 }
 
