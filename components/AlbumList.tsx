@@ -3,18 +3,20 @@ import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Asset, AssetsOptions, getAssetsAsync } from "expo-media-library";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable } from "react-native";
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { ThemedRefreshControl } from "./ThemedRefreshControls";
 import { ThemedView } from "./ThemedView";
+import { filterAsync } from "@/lib/utils";
 
 
 export default function AlbumList({
-    preFilters, postFilter = useCallback((() => true), []), limit
+    preFilters,
+    postFilter,
+    limit
 }: {
     preFilters: AssetsOptions,
-    postFilter?: (_: Asset) => (boolean),
+    postFilter?: (_: Asset) => Promise<boolean>,
     limit?: number
 }) {
     const [refreshing, setRefreshing] = useState(true);
@@ -25,6 +27,14 @@ export default function AlbumList({
     const [assets, setAssets] = useState<Asset[]>([]);
     const [filtered, setFiltered] = useState<Asset[]>([]);
 
+    const filter = async (newAssets: Asset[]) => {
+        if (postFilter) {
+            setFiltered(await filterAsync(newAssets, postFilter));
+        } else {
+            setFiltered(newAssets);
+        }
+    };
+
     const getPage = async () => {
         if (lastPage?.hasNextPage === false || (limit && filtered.length >= limit)) return;
         setRefreshing(true);
@@ -32,12 +42,15 @@ export default function AlbumList({
         setLastPage(fetchedPage);
         const newAssets = [...assets, ...fetchedPage.assets];
         setAssets(newAssets);
-        setFiltered(newAssets.filter(postFilter));
+        await filter(newAssets);
         setRefreshing(false);
     };
 
     useEffect(() => {
-        setFiltered(assets.filter(postFilter));
+        setRefreshing(true);
+        (async () => {
+            await filter(assets);
+        })();
         setRefreshing(false);
     }, [postFilter]);
 

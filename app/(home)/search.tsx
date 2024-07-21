@@ -6,8 +6,10 @@ import { useCallback } from "react";
 export default function Search() {
     const { query } = useLocalSearchParams<{ query: string }>();
 
-    const filter = useCallback((asset : Asset) => {
-        if (!query || asset.filename.toLowerCase().includes(query.toLowerCase())) {
+    const filter = useCallback(async (asset: Asset) => {
+        if (!query
+            || asset.filename.toLowerCase().includes(query.toLowerCase())
+        ) {
             return true;
         }
         // TODO: Check EXIF
@@ -16,15 +18,13 @@ export default function Search() {
 
     return (
         <AlbumList
-        limit={96}
-        preFilters={{
-            mediaType: ['photo', 'video'],
-            first: 32,
-            sortBy: 'modificationTime',
-        }}
-        postFilter={
-            filter
-        }
+            limit={96}
+            preFilters={{
+                mediaType: ['photo', 'video'],
+                first: 32,
+                sortBy: 'modificationTime',
+            }}
+            postFilter={filter}
         />
     );
 }
