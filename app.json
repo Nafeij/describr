@@ -39,7 +39,8 @@
       ],
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
       ],
       "package": "com.nafeij.describr"
     },
@@ -50,7 +51,12 @@
     },
     "plugins": [
       "expo-router",
-      "expo-media-library",
+      [
+        "expo-media-library",
+        {
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
       "./android-manifest-launch-mode-plugin"
     ],
     "experiments": {

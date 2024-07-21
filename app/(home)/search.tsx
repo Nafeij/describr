@@ -1,5 +1,5 @@
 import AlbumList from "@/components/AlbumList";
-import { Asset } from "expo-media-library";
+import { Asset, getAssetInfoAsync } from "expo-media-library";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback } from "react";
 
@@ -12,7 +12,10 @@ export default function Search() {
         ) {
             return true;
         }
-        // TODO: Check EXIF
+        const exif = (await getAssetInfoAsync(asset)).exif;
+        if (exif && Object.values(exif).some(value => typeof value === "string" && value?.toLowerCase().includes(query.toLowerCase()))) {
+            return true;
+        }
         return false;
     }, [query]);
 
