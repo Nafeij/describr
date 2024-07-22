@@ -13,7 +13,7 @@ export const SearchBar = () => {
         callback: () => {
             router.setParams({ query });
         },
-        delay: 200,
+        delay: 500,
     });
     const isInSearch = usePathname().endsWith("search");
     const ref = useRef<TextInput>(null);

@@ -13,11 +13,13 @@ import { filterAsync } from "@/lib/utils";
 export default function AlbumList({
     preFilters,
     postFilter,
-    limit
+    limit,
+    pageOnEnd,
 }: {
     preFilters: AssetsOptions,
     postFilter?: (_: Asset) => Promise<boolean>,
     limit?: number
+    pageOnEnd?: boolean
 }) {
     const [refreshing, setRefreshing] = useState(true);
     const [lastPage, setLastPage] = useState<{
@@ -70,7 +72,7 @@ export default function AlbumList({
                     <ThemedRefreshControl refreshing={refreshing} onRefresh={getPage} />
                 }
                 onEndReachedThreshold={1}
-                onEndReached={getPage}
+                onEndReached={pageOnEnd ? getPage : undefined}
             />
         </ThemedView>
     );

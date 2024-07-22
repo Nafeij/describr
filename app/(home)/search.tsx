@@ -21,13 +21,13 @@ export default function Search() {
 
     return (
         <AlbumList
-            limit={96}
             preFilters={{
                 mediaType: ['photo', 'video'],
                 first: 32,
                 sortBy: 'modificationTime',
             }}
             postFilter={filter}
+            pageOnEnd
         />
     );
 }

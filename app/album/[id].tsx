@@ -8,12 +8,15 @@ export default function AlbumView() {
             <Stack.Screen options={{
                 title: title ?? 'Untitled Album',
             }} />
-            <AlbumList preFilters={{
-                album: id,
-                mediaType: ['photo', 'video'],
-                first: 32,
-                sortBy: 'modificationTime',
-            }} />
+            <AlbumList
+                pageOnEnd
+                preFilters={{
+                    album: id,
+                    mediaType: ['photo', 'video'],
+                    first: 32,
+                    sortBy: 'modificationTime',
+                }}
+            />
         </>
     );
 }
