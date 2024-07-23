@@ -88,7 +88,6 @@ function AssetEntry({ uri, id }: { uri: string, id: string }) {
             style={({ pressed }) => [{ flex: 1, aspectRatio: 1, opacity: selectNeeded && !canSelect ? 0.5 : 1, padding: pressed ? 8 : 0 }]}
             onLongPress={() => selectNeeded && canSelect && setResult({ isOK: true, uri })}
             onPress={() => {
-                console.log("pressed");
                 router.push(`/image/${id}`);
             }}
         >

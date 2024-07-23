@@ -43,8 +43,5 @@ export function useIntentManager() {
     },
     [intent.type, intent.extras]
   );
-  // useEffect(() => {
-  //   console.log(intent);
-  // }, [intent]);
   return { intent, setResult, isMatchingType };
 }
