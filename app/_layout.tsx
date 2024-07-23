@@ -35,7 +35,7 @@ export default function RootLayout() {
           headerShown: false,
         }}>
           <Stack.Screen name="(home)" />
-          <Stack.Screen name="album" />
+          <Stack.Screen name="(displays)" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemedView>

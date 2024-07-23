@@ -12,7 +12,8 @@ export default function AlbumLayout() {
         backgroundColor,
       },
     }}>
-      <Stack.Screen name="[id]" />
+      <Stack.Screen name="album/[id]" />
+      <Stack.Screen name="image/[id]" />
     </Stack>
   );
 }

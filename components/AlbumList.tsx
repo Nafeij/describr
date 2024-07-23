@@ -1,13 +1,14 @@
 import { useIntentManager } from "@/hooks/useIntentManager";
+import { filterAsync } from "@/lib/utils";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Asset, AssetsOptions, getAssetsAsync } from "expo-media-library";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedRefreshControl } from "./ThemedRefreshControls";
 import { ThemedView } from "./ThemedView";
-import { filterAsync } from "@/lib/utils";
 
 
 export default function AlbumList({
@@ -85,8 +86,11 @@ function AssetEntry({ uri, id }: { uri: string, id: string }) {
     return (
         <Pressable
             style={({ pressed }) => [{ flex: 1, aspectRatio: 1, opacity: selectNeeded && !canSelect ? 0.5 : 1, padding: pressed ? 8 : 0 }]}
-            onLongPress={() => setResult({ isOK: true, uri })}
-            disabled={!selectNeeded || !canSelect}
+            onLongPress={() => selectNeeded && canSelect && setResult({ isOK: true, uri })}
+            onPress={() => {
+                console.log("pressed");
+                router.push(`/image/${id}`);
+            }}
         >
             <Image
                 style={{ flex: 1 }}

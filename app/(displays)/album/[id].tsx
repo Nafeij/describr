@@ -1,5 +1,5 @@
 import AlbumList from "@/components/AlbumList";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 
 export default function AlbumView() {
     const { id, title } = useLocalSearchParams<{ id: string, title?: string }>();

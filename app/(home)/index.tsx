@@ -63,7 +63,7 @@ export default function App() {
 
 const AlbumEntry = ({ album }: { album: AlbumThumb }) => {
   return (
-    <Link key={album.id} href={{ pathname: `/album/${album.id}`, params: { title: album.title, count: album.assetCount } }} asChild>
+    <Link key={album.id} href={{ pathname: `(displays)/album/${album.id}`, params: { title: album.title, count: album.assetCount } }} asChild>
       <Pressable style={styles.albumContainer} >
         <Image
           source={{ uri: album.thumbnail?.uri }}
