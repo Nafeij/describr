@@ -11,7 +11,7 @@ export const filterAsync = async (
   ).filter((i) => i !== fail);
 };
 
-export const exifToTags = (exif: { ImageDescription?: string }) => {
+export const exifToTags = (exif?: { ImageDescription?: string }) => {
   if (!exif) return [];
   // return exif.ImageDescription?.replace(/["]/g,"").split(",") ?? [];
   return exif.ImageDescription?.split(",").map(item => item.trim()) ?? [];
