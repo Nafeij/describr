@@ -1,14 +1,11 @@
+import TagEditor from "@/components/TagEditor";
 import { ThemedView } from "@/components/ThemedView";
-import { Image } from "expo-image";
 import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
+import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-import { StyleSheet, View } from 'react-native';
-import { ThemedText } from "@/components/ThemedText";
-import { exifToTags } from "@/lib/utils";
-import TagEditor from "@/components/TagEditor";
 
 
 export default function ImageView() {
@@ -67,7 +64,7 @@ export default function ImageView() {
     if (!asset) return null;
 
     return (
-        <ThemedView style={{ flex: 1 }}>
+        <ThemedView style={{ flex: 1, position: 'relative' }}>
             <Stack.Screen options={{
                 headerTitle: asset?.filename ?? 'Untitled Image',
             }} />
