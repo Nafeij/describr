@@ -8,7 +8,7 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 import { StyleSheet, View } from 'react-native';
 import { ThemedText } from "@/components/ThemedText";
 import { exifToTags } from "@/lib/utils";
-import TagEditor from "@/app-example/components/TagEditor";
+import TagEditor from "@/components/TagEditor";
 
 
 export default function ImageView() {
