@@ -2,6 +2,7 @@
 import { ThemedRefreshControl } from '@/components/ThemedRefreshControls';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useManagerPermissions } from '@/hooks/useManagerPermissions';
 import { FlashList } from "@shopify/flash-list";
 import { Image } from 'expo-image';
 import {
@@ -22,12 +23,16 @@ type AlbumThumb = Album & { thumbnail: Asset };
 export default function App() {
   const [refreshing, setRefreshing] = useState(true);
   const [albums, setAlbums] = useState<AlbumThumb[]>([]);
-  const [permissionResponse, requestPermission] = usePermissions();
+  const [mediaPermission, requestMediaPerm] = usePermissions();
+  const [managerPermission, requestManagerPerm] = useManagerPermissions();
 
   const getAlbumThumbnails = async () => {
     setRefreshing(true);
-    if (permissionResponse?.status !== 'granted') {
-      await requestPermission();
+    if (mediaPermission?.status !== 'granted') {
+      await requestMediaPerm();
+    }
+    if (managerPermission?.status !== 'granted') {
+      await requestManagerPerm();
     }
     const fetchedAlbums = await getAlbumsAsync();
     const albumThumbnails = (await Promise.all(

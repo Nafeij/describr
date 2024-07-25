@@ -1,20 +1,20 @@
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { exifToTags } from "@/lib/utils";
+import { cleanTags, exifToTags } from "@/lib/utils";
+import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
 import { AssetInfo } from "expo-media-library";
 import { useEffect, useRef, useState } from "react";
-import { NativeSyntheticEvent, Pressable, StyleSheet, TextInput, TextInputKeyPressEventData, TextInputSubmitEditingEventData } from "react-native";
-import { writeAsync, ExifTags } from '@lodev09/react-native-exify';
+import { Pressable, StyleSheet, TextInput, TextInputKeyPressEventData } from "react-native";
 
 export default function TagEditor({ asset }: { asset: AssetInfo }) {
 
     const [selected, setSelected] = useState(false);
-    const [tags, setTags] = useState<string[]>(() => exifToTags(asset.exif));
+    const [tags, setTags] = useState<string[]>(() => cleanTags(exifToTags(asset.exif)));
     const [newTag, setNewTag] = useState('');
     const [focus, setFocus] = useState(-1);
     const tagsRef = useRef(tags);
     const inputRef = useRef<TextInput>(null);
-    const [modal, activeColor, color, selectedColor] = useThemeColor({}, ['modal', 'tint', 'icon', 'tabIconSelected']);
+    const [modal, activeColor, color] = useThemeColor({}, ['modal', 'tint', 'icon']);
 
     const onSelected = () => {
         setSelected(true);
@@ -26,8 +26,11 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         inputRef?.current?.blur();
     }
 
-    const onSubmit = (event: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
-        if (!newTag) return;
+    const onSubmit = () => {
+        if (!newTag) {
+            inputRef?.current?.blur();
+            return;
+        }
         setTags([...tags, newTag]);
         setNewTag('');
     }
@@ -62,7 +65,6 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
             const old = exifToTags(asset.exif);
             const tags = tagsRef.current;
             if (old.length != tags.length || old.some((tag, i) => tag !== tags[i])) {
-                // TODO: FIX THIS
                 (async () => {
                     await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
                 })();
@@ -70,7 +72,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         };
     }, []);
 
-    if (!(asset.exif?.hasOwnProperty('ImageDescription'))) return null;
+    // if (!(asset.exif?.hasOwnProperty('ImageDescription'))) return null;
 
     return (
         <Pressable style={[styles.outer, {
@@ -78,21 +80,13 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         }]} onPress={onDeselected} >
             <Pressable style={styles.container} onPress={onSelected} >
                 {
-                    tags.map((line, i) => (
-                        <Pressable focusable key={i} onPress={() => onTagPress(i)} style={
-                            { margin: 4 }} >
-                            <ThemedText type='small' style={[{
-                                backgroundColor: modal,
-                                borderColor: focus === i ? selectedColor : "transparent",
-                            }, styles.tag]} >{line}</ThemedText>
-                        </Pressable>
-                    ))
+                    tags.map((tag, i) => <Tag key={i} tag={tag} onPress={onTagPress} focus={focus} />)
                 }
                 <TextInput
                     ref={inputRef}
                     style={[styles.tag, {
                         margin: 4,
-                        paddingTop: 6,
+                        paddingTop: 1,
                         color: activeColor,
                         backgroundColor: modal,
                         borderColor: "transparent",
@@ -106,6 +100,18 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                     onKeyPress={onKeyPress}
                 />
             </Pressable>
+        </Pressable>
+    );
+}
+
+const Tag = ({ key, tag, onPress, focus }: { key: number, tag: string, onPress: (i: number) => void, focus: number }) => {
+    const [modal, selectedColor] = useThemeColor({}, ['modal', 'tabIconSelected']);
+    return (
+        <Pressable key={key} focusable onPress={() => onPress(key)} style={{ margin: 4 }} >
+            <ThemedText type='small' style={[{
+                backgroundColor: modal,
+                borderColor: focus === key ? selectedColor : "transparent",
+            }, styles.tag]} >{tag}</ThemedText>
         </Pressable>
     );
 }
@@ -129,7 +135,6 @@ const styles = StyleSheet.create({
     tag: {
         borderRadius: 4,
         borderWidth: 1,
-        paddingBottom: 5,
         paddingLeft: 6,
         paddingTop: 5,
         paddingRight: 4,

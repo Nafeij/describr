@@ -14,7 +14,7 @@ export default function AlbumView() {
                     album: id,
                     mediaType: ['photo', 'video'],
                     first: 32,
-                    sortBy: 'modificationTime',
+                    sortBy: 'creationTime',
                 }}
             />
         </>

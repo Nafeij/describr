@@ -13,9 +13,12 @@ export const filterAsync = async (
 
 export const exifToTags = (exif?: { ImageDescription?: string }) => {
   if (!exif) return [];
-  // return exif.ImageDescription?.replace(/["]/g,"").split(",") ?? [];
   return exif.ImageDescription?.split(",").map(item => item.trim()) ?? [];
 };
+
+export const cleanTags = (tags: string[]) => {
+  return tags.map((tag) => tag.replace(/[".\\/]/g, "")).filter(Boolean);
+}
 
 export const tagsToExif = (tags: string[]) => {
   return { ImageDescription: tags.join(",") };

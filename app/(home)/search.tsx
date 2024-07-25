@@ -1,4 +1,5 @@
 import AlbumList from "@/components/AlbumList";
+import { exifToTags } from "@/lib/utils";
 import { Asset, getAssetInfoAsync } from "expo-media-library";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback } from "react";
@@ -12,8 +13,8 @@ export default function Search() {
         ) {
             return true;
         }
-        const exif = (await getAssetInfoAsync(asset)).exif;
-        if (exif && Object.values(exif).some(value => typeof value === "string" && value?.toLowerCase().includes(query.toLowerCase()))) {
+        const assetInfo = await getAssetInfoAsync(asset);
+        if (exifToTags(assetInfo?.exif).some(tag => tag.toLowerCase().includes(query.toLowerCase()))) {
             return true;
         }
         return false;
@@ -24,7 +25,7 @@ export default function Search() {
             preFilters={{
                 mediaType: ['photo', 'video'],
                 first: 32,
-                sortBy: 'modificationTime',
+                sortBy: 'creationTime',
             }}
             postFilter={filter}
             pageOnEnd
