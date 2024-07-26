@@ -80,7 +80,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         }]} onPress={onDeselected} >
             <Pressable style={styles.container} onPress={onSelected} >
                 {
-                    tags.map((tag, i) => <Tag key={i} tag={tag} onPress={onTagPress} focus={focus} />)
+                    tags.map((tag, i) => <Tag key={i} index={i} tag={tag} onPress={onTagPress} focus={focus} />)
                 }
                 <TextInput
                     ref={inputRef}
@@ -104,13 +104,13 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     );
 }
 
-const Tag = ({ key, tag, onPress, focus }: { key: number, tag: string, onPress: (i: number) => void, focus: number }) => {
+const Tag = ({ index, tag, onPress, focus }: { index: number, tag: string, onPress: (i: number) => void, focus: number }) => {
     const [modal, selectedColor] = useThemeColor({}, ['modal', 'tabIconSelected']);
     return (
-        <Pressable key={key} focusable onPress={() => onPress(key)} style={{ margin: 4 }} >
+        <Pressable key={index} focusable onPress={() => onPress(index)} style={{ margin: 4 }} >
             <ThemedText type='small' style={[{
                 backgroundColor: modal,
-                borderColor: focus === key ? selectedColor : "transparent",
+                borderColor: focus === index ? selectedColor : "transparent",
             }, styles.tag]} >{tag}</ThemedText>
         </Pressable>
     );

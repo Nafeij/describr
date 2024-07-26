@@ -5,7 +5,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useCallback } from "react";
 
 export default function Search() {
-    const { query } = useLocalSearchParams<{ query: string }>();
+    const { id, query } = useLocalSearchParams<{ id?: string, query: string }>();
 
     const filter = useCallback(async (asset: Asset) => {
         if (!query
@@ -23,8 +23,9 @@ export default function Search() {
     return (
         <AlbumList
             preFilters={{
+                album: id,
                 mediaType: ['photo', 'video'],
-                first: 32,
+                first: 128,
                 sortBy: 'creationTime',
             }}
             postFilter={filter}

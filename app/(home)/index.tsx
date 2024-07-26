@@ -73,6 +73,7 @@ const AlbumEntry = ({ album }: { album: AlbumThumb }) => {
         <Image
           source={{ uri: album.thumbnail?.uri }}
           style={{ width: "100%", aspectRatio: 1 }}
+          autoplay={false}
         />
         <ThemedText type='defaultSemiBold' numberOfLines={1}>
           {album.title}

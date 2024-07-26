@@ -2,11 +2,11 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
-import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleProp, StyleSheet, TextInput, ViewStyle } from "react-native";
+import Animated from "react-native-reanimated";
 
-export const SearchBar = () => {
+export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle> }) => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
     const [query, setQuery] = useState(_query);
     const debouncedSetParams = useDebounce({
@@ -25,7 +25,7 @@ export const SearchBar = () => {
             setQuery("");
         } else if (ref.current?.isFocused()) {
             ref.current?.blur();
-        } else {
+        } else if (router.canGoBack()) {
             router.back();
         }
     };
@@ -50,12 +50,13 @@ export const SearchBar = () => {
         }
     }, [isInSearch]);
 
-    return <View style={[styles.container, { backgroundColor }]}>
+    return <Animated.View style={[styles.container, { backgroundColor }, propStyles]}>
         <Feather
-            name="search"
+            name={(selected || query || isInSearch) ? "x" : "search"}
             size={20}
             color={color}
             style={{ marginLeft: 1 }}
+            onPress={clear}
         />
         <TextInput
             ref={ref}
@@ -70,21 +71,12 @@ export const SearchBar = () => {
             onChangeText={query => setQuery(query)}
             placeholderTextColor={color}
         />
-        {
-            (selected || query || isInSearch) && <Feather
-                name="x"
-                size={20}
-                color={color}
-                onPress={clear}
-            />
-        }
-    </View>
+    </Animated.View>
 }
 
 const styles = StyleSheet.create({
     container: {
-        margin: 12,
-        marginBottom: 16,
+        flex: 1,
         paddingVertical: 4,
         paddingHorizontal: 10,
         justifyContent: "flex-start",

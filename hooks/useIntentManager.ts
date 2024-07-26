@@ -11,6 +11,7 @@ import {
 } from "expo-file-system";
 import { useCallback, useState } from "react";
 import { lookup } from "react-native-mime-types";
+import match from "mime-match";
 
 export function useIntentManager() {
   const [intent] = useState(getIntent);
@@ -36,10 +37,9 @@ export function useIntentManager() {
       if (!mimeType) return false;
       const types = intent.extras?.["android.intent.extra.MIME_TYPES"];
       if (types) {
-        return types.includes(mimeType);
+        return (types as string[]).some((type) => match(mimeType, type));
       }
-      const regex = new RegExp(`^${intent.type.replace("*", ".*")}$`); // ^.*/.*$
-      return regex.test(mimeType);
+      return match(mimeType, intent.type);
     },
     [intent.type, intent.extras]
   );
