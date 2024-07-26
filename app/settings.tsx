@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 
+// TODO
 
 export default function Settings() {
   const [color, backgroundColor] = useThemeColor({}, ['tint', 'background']);
@@ -22,7 +23,6 @@ export default function Settings() {
       <View style={styles.container}>
         <ThemedText type="subtitle">AI</ThemedText>
         <View style={styles.section}>
-
           <View style={styles.row}>
             <ThemedText type="default" >API Key</ThemedText>
             <TextInput />
