@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // TODO
 
@@ -42,11 +42,11 @@ export function useSettings() {
         });
     }, []);
 
-    const updateSettings = async (newSettings: RecursivePartial<Settings>) => {
+    const updateSettings = useCallback(async (newSettings: RecursivePartial<Settings>) => {
         const updatedSettings = _.merge({}, settings, newSettings);
         setSettings(updatedSettings);
         await SecureStore.setItemAsync("settings", JSON.stringify(updatedSettings));
-    };
+    }, [settings]);
 
     return [settings, updateSettings] as const;
 }
