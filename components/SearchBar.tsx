@@ -11,7 +11,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const [query, setQuery] = useState(_query);
     const debouncedSetParams = useDebounce({
         callback: () => {
-            router.setParams({ query });
+            router.setParams({ query: query?.trim().toLowerCase() });
         },
         delay: 500,
     });

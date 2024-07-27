@@ -84,12 +84,9 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                 }
                 <TextInput
                     ref={inputRef}
-                    style={[styles.tag, {
-                        margin: 4,
-                        paddingTop: 1,
+                    style={[styles.tag, styles.input, {
                         color: activeColor,
                         backgroundColor: modal,
-                        borderColor: "transparent",
                     }]}
                     placeholder="Add tag"
                     placeholderTextColor={color}
@@ -138,8 +135,13 @@ const styles = StyleSheet.create({
         paddingLeft: 6,
         paddingTop: 5,
         paddingRight: 4,
-        height: 22,
         fontSize: 12,
         lineHeight: 13,
+    },
+    input: {
+        margin: 4,
+        paddingTop: 1,
+        borderColor: "transparent",
+        height: 22,
     }
 });

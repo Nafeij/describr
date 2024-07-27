@@ -1,9 +1,8 @@
 import { useIntentManager } from "@/hooks/useIntentManager";
-import { filterAsync } from "@/lib/utils";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { Asset, AssetsOptions, getAssetsAsync } from "expo-media-library";
+import { Asset, AssetInfo, AssetsOptions, getAssetInfoAsync, getAssetsAsync } from "expo-media-library";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable } from "react-native";
@@ -15,51 +14,67 @@ export default function AlbumList({
     preFilters,
     postFilter,
     limit,
-    pageOnEnd,
+    fetchInfo,
 }: {
     preFilters: AssetsOptions,
-    postFilter?: (_: Asset) => Promise<boolean>,
+    postFilter?: (_: AssetInfo) => boolean,
     limit?: number
-    pageOnEnd?: boolean
+    fetchInfo?: boolean
 }) {
     const [refreshing, setRefreshing] = useState(true);
     const [lastPage, setLastPage] = useState<{
         endCursor: string;
         hasNextPage: boolean;
     }>();
-    const [assets, setAssets] = useState<Asset[]>([]);
+    const [assets, setAssets] = useState<AssetInfo[]>([]);
     const [filtered, setFiltered] = useState<Asset[]>([]);
 
-    const filter = async (newAssets: Asset[]) => {
+    const filter = (newAssets: AssetInfo[]) => {
         if (postFilter) {
-            setFiltered(await filterAsync(newAssets, postFilter));
-        } else {
-            setFiltered(newAssets);
+            return newAssets.filter(postFilter);
         }
+        return newAssets;
     };
 
     const getPage = async () => {
-        if (lastPage?.hasNextPage === false || (limit && filtered.length >= limit)) return;
+        if (refreshing || lastPage?.hasNextPage === false || (limit && filtered.length >= limit)) return;
         setRefreshing(true);
-        const fetchedPage = (await getAssetsAsync({ ...preFilters, after: lastPage?.endCursor }));
-        setLastPage(fetchedPage);
-        const newAssets = [...assets, ...fetchedPage.assets];
-        setAssets(newAssets);
-        await filter(newAssets);
+        let newAssets: Asset[] = assets;
+        let cursor = lastPage?.endCursor;
+        while (true) {
+            const fetchedPage = (await getAssetsAsync({ ...preFilters, after: cursor }));
+            cursor = fetchedPage.endCursor;
+            let fetchedAssets: Asset[] = fetchedPage.assets;
+            if (fetchInfo) {
+                fetchedAssets = await Promise.all(fetchedAssets.map((asset) => getAssetInfoAsync(asset.id)
+                ));
+            }
+            newAssets = newAssets.concat(fetchedAssets);
+            console.log(newAssets.length);
+            const newFiltered = filter(newAssets);
+            if (fetchedPage.hasNextPage === false || newFiltered.length > 0) {
+                setLastPage(fetchedPage);
+                setAssets(newAssets);
+                setFiltered(newFiltered);
+                break;
+            }
+        }
         setRefreshing(false);
     };
 
     useEffect(() => {
         setRefreshing(true);
         (async () => {
-            await filter(assets);
+            const filtered = filter(assets);
+            if (filtered.length > 0) {
+                setFiltered(filtered);
+                return;
+            }
+            setFiltered([]);
+            await getPage();
         })();
         setRefreshing(false);
     }, [postFilter]);
-
-    useEffect(() => {
-        getPage();
-    }, []);
 
     return (
         <ThemedView style={{ flex: 1 }}>
@@ -73,7 +88,7 @@ export default function AlbumList({
                     <ThemedRefreshControl refreshing={refreshing} onRefresh={getPage} />
                 }
                 onEndReachedThreshold={1}
-                onEndReached={pageOnEnd ? getPage : undefined}
+                onEndReached={getPage}
             />
         </ThemedView>
     );

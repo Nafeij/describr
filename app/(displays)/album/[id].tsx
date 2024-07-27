@@ -22,11 +22,10 @@ export default function AlbumView() {
                     </Link>
             }} />
             <AlbumList
-                pageOnEnd
                 preFilters={{
                     album: id,
                     mediaType: ['photo', 'video'],
-                    first: 32,
+                    first: 128,
                     sortBy: ['creationTime', 'modificationTime'],
                 }}
             />

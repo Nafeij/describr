@@ -1,20 +1,19 @@
 import AlbumList from "@/components/AlbumList";
 import { exifToTags } from "@/lib/utils";
-import { Asset, getAssetInfoAsync } from "expo-media-library";
+import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback } from "react";
 
 export default function Search() {
     const { id, query } = useLocalSearchParams<{ id?: string, query: string }>();
 
-    const filter = useCallback(async (asset: Asset) => {
+    const filter = useCallback((asset: AssetInfo) => {
         if (!query
-            || asset.filename.toLowerCase().includes(query.toLowerCase())
+            || asset.filename.toLowerCase().includes(query)
         ) {
             return true;
         }
-        const assetInfo = await getAssetInfoAsync(asset);
-        if (exifToTags(assetInfo?.exif).some(tag => tag.toLowerCase().includes(query.toLowerCase()))) {
+        if (exifToTags(asset.exif).some(tag => tag.toLowerCase().includes(query))) {
             return true;
         }
         return false;
@@ -25,11 +24,11 @@ export default function Search() {
             preFilters={{
                 album: id,
                 mediaType: ['photo', 'video'],
-                first: 128,
+                first: 256,
                 sortBy: 'creationTime',
             }}
             postFilter={filter}
-            pageOnEnd
+            fetchInfo
         />
     );
 }
