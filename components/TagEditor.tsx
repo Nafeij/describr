@@ -14,7 +14,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     const [focus, setFocus] = useState(-1);
     const tagsRef = useRef(tags);
     const inputRef = useRef<TextInput>(null);
-    const [modal, activeColor, color] = useThemeColor({}, ['modal', 'tint', 'icon']);
+    const [field, activeColor, color] = useThemeColor({}, ['field', 'tint', 'icon']);
 
     const onSelected = () => {
         setSelected(true);
@@ -86,7 +86,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                     ref={inputRef}
                     style={[styles.tag, styles.input, {
                         color: activeColor,
-                        backgroundColor: modal,
+                        backgroundColor: field,
                     }]}
                     placeholder="Add tag"
                     placeholderTextColor={color}
@@ -102,11 +102,11 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
 }
 
 const Tag = ({ index, tag, onPress, focus }: { index: number, tag: string, onPress: (i: number) => void, focus: number }) => {
-    const [modal, selectedColor] = useThemeColor({}, ['modal', 'tabIconSelected']);
+    const [field, selectedColor] = useThemeColor({}, ['field', 'tabIconSelected']);
     return (
         <Pressable key={index} focusable onPress={() => onPress(index)} style={{ margin: 4 }} >
             <ThemedText type='small' style={[{
-                backgroundColor: modal,
+                backgroundColor: field,
                 borderColor: focus === index ? selectedColor : "transparent",
             }, styles.tag]} >{tag}</ThemedText>
         </Pressable>

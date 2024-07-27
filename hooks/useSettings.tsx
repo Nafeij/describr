@@ -1,29 +1,52 @@
-import { useState, useEffect } from "react";
+import * as SecureStore from 'expo-secure-store';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
 // TODO
 
-type Settings = {
+export type Settings = {
     AI: {
-        enabled: boolean;
+        taggingEnabled: boolean;
         key: string;
     };
     app: {
-        theme: "light" | "dark";
+        theme: "light" | "dark" | "system";
     };
 };
 
+type RecursivePartial<T> = {
+    [P in keyof T]?:
+    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+    T[P] extends object | undefined ? RecursivePartial<T[P]> :
+    T[P];
+};
+
+const defaultSettings: Settings = {
+    AI: {
+        taggingEnabled: false,
+        key: "",
+    },
+    app: {
+        theme: "system",
+    },
+};
+
 export function useSettings() {
-    const [settings, setSettings] = useState<Settings | null>(null);
+    const [settings, setSettings] = useState<Settings>(defaultSettings);
 
     useEffect(() => {
-        const fetchSettings = async () => {
-            const response = await fetch("/api/settings");
-            const data = await response.json();
-            setSettings(data);
-        };
-
-        fetchSettings();
+        SecureStore.getItemAsync("settings").then((settings) => {
+            if (settings) {
+                setSettings(JSON.parse(settings));
+            }
+        });
     }, []);
 
-    return settings;
+    const updateSettings = async (newSettings: RecursivePartial<Settings>) => {
+        const updatedSettings = _.merge({}, settings, newSettings);
+        setSettings(updatedSettings);
+        await SecureStore.setItemAsync("settings", JSON.stringify(updatedSettings));
+    };
+
+    return [settings, updateSettings] as const;
 }

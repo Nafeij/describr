@@ -18,7 +18,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const isInSearch = usePathname().endsWith("search");
     const ref = useRef<TextInput>(null);
     const [selected, setSelected] = useState(false);
-    const [activeColor, color, backgroundColor] = useThemeColor({}, ['tint', 'icon', 'modal']);
+    const [activeColor, color, backgroundColor] = useThemeColor({}, ['tint', 'icon', 'field']);
 
     const clear = () => {
         if (query) {
