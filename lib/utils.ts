@@ -1,3 +1,10 @@
+export type RecursivePartial<T> = {
+  [P in keyof T]?:
+  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+  T[P] extends object | undefined ? RecursivePartial<T[P]> :
+  T[P];
+};
+
 // https://stackoverflow.com/a/46842181
 export const filterAsync = async (
   arr: any[],

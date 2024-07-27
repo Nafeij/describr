@@ -50,7 +50,6 @@ export default function AlbumList({
                 ));
             }
             newAssets = newAssets.concat(fetchedAssets);
-            console.log(newAssets.length);
             const newFiltered = filter(newAssets);
             if (fetchedPage.hasNextPage === false || newFiltered.length > 0) {
                 setLastPage(fetchedPage);

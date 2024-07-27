@@ -1,4 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
+import { useAITagging } from "@/hooks/useAITagging";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { cleanTags, exifToTags } from "@/lib/utils";
 import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
@@ -11,6 +12,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     const [selected, setSelected] = useState(false);
     const [tags, setTags] = useState<string[]>(() => cleanTags(exifToTags(asset.exif)));
     const [newTag, setNewTag] = useState('');
+    const [aiTags, setAITags, generateTagsFromFile] = useAITagging();
     const [focus, setFocus] = useState(-1);
     const tagsRef = useRef(tags);
     const inputRef = useRef<TextInput>(null);

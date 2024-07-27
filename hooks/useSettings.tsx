@@ -1,3 +1,4 @@
+import { RecursivePartial } from '@/lib/utils';
 import * as SecureStore from 'expo-secure-store';
 import _ from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,13 +13,6 @@ export type Settings = {
     app: {
         theme: "light" | "dark" | "system";
     };
-};
-
-type RecursivePartial<T> = {
-    [P in keyof T]?:
-    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
-    T[P] extends object | undefined ? RecursivePartial<T[P]> :
-    T[P];
 };
 
 const defaultSettings: Settings = {
