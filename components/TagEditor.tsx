@@ -5,9 +5,8 @@ import { cleanTags, exifToTags, isDiffTags } from "@/lib/utils";
 import { Feather } from "@expo/vector-icons";
 import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
 import { AssetInfo } from "expo-media-library";
-import { set } from "lodash";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleProp, StyleSheet, TextInput, TextInputKeyPressEventData, TextStyle, View } from "react-native";
+import { Pressable, StyleProp, StyleSheet, TextInput, TextInputKeyPressEventData, TextStyle } from "react-native";
 
 export default function TagEditor({ asset }: { asset: AssetInfo }) {
     const [selected, setSelected] = useState(false);
@@ -21,12 +20,19 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     const inputRef = useRef<TextInput>(null);
     const [field, color, mutedColor, undoColor, generateColor] = useThemeColor({}, ['field', 'text', 'icon', 'danger', 'confirm']);
 
-    const reset = () => {
+    const unset = () => {
         setConfirmUndo(false);
         setFocus(-1);
-        setTags(oldTags);
-        setAITags([]);
-        setNewTag('');
+    }
+
+    const commit = () => {
+        const old = exifToTags(asset.exif);
+        const tags = tagsRef.current;
+        if (isDiffTags(old, tags)) {
+            (async () => {
+                await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
+            })();
+        }
     }
 
     const onSelected = () => {
@@ -36,8 +42,10 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
 
     const onDeselected = () => {
         setSelected(false);
-        reset();
+        setNewTag('');
+        unset();
         inputRef?.current?.blur();
+        commit();
     }
 
     const onSubmit = () => {
@@ -53,15 +61,8 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         setTags([...tags, newTag]);
     }
 
-    const onUnsetTags = () => {
-        setFocus(-1);
-        setSelected(true);
-        setConfirmUndo(false);
-    }
-
     const onKeyPress = ({ nativeEvent }: { nativeEvent: TextInputKeyPressEventData }) => {
-        setFocus(-1);
-        setConfirmUndo(false);
+        unset();
         if (nativeEvent.key === 'Backspace') {
             if (newTag || tags.length < 1) return;
             if (focus > -1 && focus < tags.length) {
@@ -86,16 +87,20 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     }
 
     const onUndo = () => {
-        if (!selected) setSelected(true);
+        setSelected(true);
+        setFocus(-1);
         if (!confirmUndo) {
             setConfirmUndo(true);
             return;
         }
-        reset();
+        setConfirmUndo(false);
+        setTags(oldTags);
+        setAITags([]);
     }
 
     const onGenerateOrAdd = async () => {
-        onUnsetTags();
+        unset();
+        setSelected(true);
         if (isLoading) return;
         if (aiTags.length) {
             setTags([...tags, ...aiTags]);
@@ -114,15 +119,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     }, [tags]);
 
     useEffect(() => {
-        return () => {
-            const old = exifToTags(asset.exif);
-            const tags = tagsRef.current;
-            if (isDiffTags(old, tags)) {
-                (async () => {
-                    await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
-                })();
-            }
-        };
+        return commit;
     }, []);
 
     // if (!(asset.exif?.hasOwnProperty('ImageDescription'))) return null;
@@ -151,7 +148,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                     placeholder="Add tag"
                     placeholderTextColor={mutedColor}
                     value={newTag}
-                    onPress={onUnsetTags}
+                    onPress={() => { setSelected(true); unset() }}
                     onChangeText={setNewTag}
                     onSubmitEditing={onSubmit}
                     blurOnSubmit={false}
@@ -162,7 +159,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                     taggingEnabled &&
                     <>
                         {
-                            aiTags.map((tag, i) => <Tag key={i} tag={tag} onPress={onUnsetTags} style={{
+                            aiTags.map((tag, i) => <Tag key={i} tag={tag} onPress={() => { setSelected(true); unset() }} style={{
                                 backgroundColor: generateColor
                             }} />)
                         }
@@ -233,5 +230,6 @@ const styles = StyleSheet.create({
     input: {
         borderColor: "transparent",
         height: 26,
+        paddingLeft: 5,
     }
 });

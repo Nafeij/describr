@@ -15,11 +15,16 @@ export default function AlbumList({
     postFilter,
     limit,
     fetchInfo,
+    setCounts,
 }: {
     preFilters: AssetsOptions,
     postFilter?: (_: AssetInfo) => boolean,
     limit?: number
     fetchInfo?: boolean
+    setCounts?: ({ numTotal, numFiltered }: {
+        numTotal: number
+        numFiltered: number
+    }) => void
 }) {
     const [refreshing, setRefreshing] = useState(true);
     const [lastPage, setLastPage] = useState<{
@@ -74,6 +79,10 @@ export default function AlbumList({
         })();
         setRefreshing(false);
     }, [postFilter]);
+
+    useEffect(() => {
+        setCounts?.({ numTotal: assets.length, numFiltered: filtered.length });
+    }, [assets.length, filtered.length, setCounts]);
 
     return (
         <ThemedView style={{ flex: 1 }}>

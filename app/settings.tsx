@@ -37,7 +37,7 @@ export default function Settings() {
           <Pressable onPress={() => setOpenKey(!openKey)}>
             <View style={[styles.row, { justifyContent: 'flex-start' }]}>
               <Feather
-                name={openKey ? 'chevron-right' : 'chevron-down'}
+                name={openKey ? 'chevron-down' : 'chevron-right'}
                 size={16}
                 color={color}
               />
@@ -46,10 +46,13 @@ export default function Settings() {
           </Pressable>
           <TextInput
             placeholder="API Key"
-            style={[styles.input, { color, backgroundColor }, { display: openKey ? 'none' : undefined }]}
+            style={[styles.input, { color, backgroundColor }, { display: openKey ? 'flex' : 'none' }]}
             placeholderTextColor={mutedColor}
             value={settings.AI.key}
             onChangeText={(value) => updateSettings({ AI: { key: value } })}
+            selection={{ start: 0 }}
+            autoCorrect={false}
+            autoComplete='off'
           />
         </View>
       </ScrollView>
