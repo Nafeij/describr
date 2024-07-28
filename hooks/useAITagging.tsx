@@ -1,9 +1,9 @@
-import { cleanTags } from "@/lib/utils";
 import { readAsStringAsync } from "expo-file-system";
-import OpenAI from "openai";
 import { useCallback, useState } from "react";
 import { lookup } from "react-native-mime-types";
+import EventSource from 'react-native-sse';
 import { useSettings } from "./useSettings";
+import { cleanTags } from "@/lib/utils";
 
 const build_prompt = (base64Data: string) => (
   {
@@ -28,18 +28,16 @@ const build_prompt = (base64Data: string) => (
       }
     ],
     max_tokens: 128,
-    stream: true,
-  } as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
+    stream: true as const,
+  }
 )
 
 export function useAITagging() {
-  const [openai, setOpenAI] = useState<OpenAI | null>(null);
+  const [es, setES] = useState<EventSource | null>(null);
   const [settings] = useSettings();
   const [aiTags, setAITags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<unknown>();
-  const [abortController, setAbortController] =
-    useState<AbortController | null>(null);
 
   const generateTagsFromFile = useCallback(async (uri: string) => {
     if (aiTags.length > 0) {
@@ -58,49 +56,65 @@ export function useAITagging() {
     setIsLoading(true);
     const text = await readAsStringAsync(uri, { encoding: 'base64' });
     const base64Data = `data:${mime};base64,${text}`;
-
-    if (abortController) {
-      abortController.abort();
+    if (es) {
+      es.close();
     }
-    let client = openai;
-    if (!client) {
-      client = new OpenAI({ apiKey: settings.AI.key });
-      setOpenAI(client);
-    }
-    const stream = await client.chat.completions.create(build_prompt(base64Data));
-    setAbortController(stream.controller);
+    const newEs = new EventSource('https://api.openai.com/v1/chat/completions', {
+      headers: {
+        Authorization: `Bearer ${settings.AI.key}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      // debug: true,
+      body: JSON.stringify(build_prompt(base64Data)),
+    });
+    setES(newEs);
+    // newEs.addEventListener('open', () => { console.debug("SSE opened") });
+    newEs.addEventListener('error', (e) => {
+      setIsLoading(false);
+      setError(e);
+      // console.error("SSE error", e)
+    });
     setAITags([]);
     let buffer = "";
-    try {
-      for await (const response of stream) {
-        if (response.choices) {
-          const delta = response.choices[0]?.delta.content;
-          if (!delta) {
-            break;
+    newEs.addEventListener('close', () => {
+      // console.log(buffer);
+      if (buffer) {
+        setAITags(tags => cleanTags(tags.concat(buffer)));
+      }
+      setIsLoading(false);
+      newEs.removeAllEventListeners();
+      // console.log("SSE closed");
+    });
+    const listener = (event: any) => {
+      // console.log("SSE event", event);
+      if (event.type === 'message') {
+        if (event.data !== '[DONE]') {
+          const data = JSON.parse(event.data)
+          const finishReason = data.choices[0].finish_reason;
+          if (finishReason !== 'stop') {
+            const content = data.choices[0].delta?.content;
+            if (content) {
+              // console.log(content);
+              buffer += content;
+              const newTags = buffer.split(",");
+              if (newTags.length < 2) {
+                return;
+              }
+              setAITags(tags => cleanTags(tags.concat(newTags.slice(0, -1))));
+              buffer = newTags[newTags.length - 1];
+            }
+          } else {
+            newEs.close()
           }
-          console.log(delta);
-          buffer += delta;
-          const newTags = buffer.split(",");
-          if (newTags.length < 1) {
-            continue;
-          }
-          setAITags(tags => tags.concat(cleanTags(newTags.slice(0, -1))));
-          buffer = newTags[newTags.length - 1];
+        } else {
+          // console.log('[DONE] SSE connection closed.')
+          newEs.close()
         }
       }
-      if (buffer) {
-        setAITags(tags => tags.concat(cleanTags(buffer.split(","))));
-      }
-    } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        console.log("Tagging aborted");
-        return;
-      }
-      setError(e);
-    }
-    setIsLoading(false);
-    setAbortController(null);
-  }, [settings.AI.taggingEnabled, settings.AI.key, abortController, openai]);
+    };
+    newEs.addEventListener('message', listener);
+  }, [settings.AI.taggingEnabled, settings.AI.key, aiTags, es]);
 
   const taggingEnabled = settings.AI.taggingEnabled && settings.AI.key;
   return [taggingEnabled, generateTagsFromFile, { aiTags, setAITags, isLoading, error }] as const;

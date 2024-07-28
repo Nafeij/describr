@@ -5,7 +5,8 @@ import { cleanTags, exifToTags, isDiffTags } from "@/lib/utils";
 import { Feather } from "@expo/vector-icons";
 import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
 import { AssetInfo } from "expo-media-library";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { set } from "lodash";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleProp, StyleSheet, TextInput, TextInputKeyPressEventData, TextStyle, View } from "react-native";
 
 export default function TagEditor({ asset }: { asset: AssetInfo }) {
@@ -18,7 +19,15 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     const [confirmUndo, setConfirmUndo] = useState(false);
     const tagsRef = useRef(tags);
     const inputRef = useRef<TextInput>(null);
-    const [field, color, mutedColor, undoColor] = useThemeColor({}, ['field', 'text', 'icon', 'danger']);
+    const [field, color, mutedColor, undoColor, generateColor] = useThemeColor({}, ['field', 'text', 'icon', 'danger', 'confirm']);
+
+    const reset = () => {
+        setConfirmUndo(false);
+        setFocus(-1);
+        setTags(oldTags);
+        setAITags([]);
+        setNewTag('');
+    }
 
     const onSelected = () => {
         setSelected(true);
@@ -27,10 +36,12 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
 
     const onDeselected = () => {
         setSelected(false);
+        reset();
         inputRef?.current?.blur();
     }
 
     const onSubmit = () => {
+        setConfirmUndo(false);
         if (!newTag) {
             inputRef?.current?.blur();
             return;
@@ -42,7 +53,15 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         setTags([...tags, newTag]);
     }
 
+    const onUnsetTags = () => {
+        setFocus(-1);
+        setSelected(true);
+        setConfirmUndo(false);
+    }
+
     const onKeyPress = ({ nativeEvent }: { nativeEvent: TextInputKeyPressEventData }) => {
+        setFocus(-1);
+        setConfirmUndo(false);
         if (nativeEvent.key === 'Backspace') {
             if (newTag || tags.length < 1) return;
             if (focus > -1 && focus < tags.length) {
@@ -50,11 +69,13 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                 setFocus(focus - 1);
                 return;
             }
-            setTags(tags.slice(0, -1));
+            setFocus(tags.length - 1);
         }
     }
 
     const onTagPress = (i?: number) => {
+        setSelected(true);
+        setConfirmUndo(false);
         if (i === undefined) return;
         if (focus === i) {
             setFocus(-1);
@@ -65,14 +86,27 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     }
 
     const onUndo = () => {
+        if (!selected) setSelected(true);
         if (!confirmUndo) {
             setConfirmUndo(true);
             return;
         }
-        setTags(oldTags);
-        setAITags([]);
-        setFocus(-1);
-        setConfirmUndo(false);
+        reset();
+    }
+
+    const onGenerateOrAdd = async () => {
+        onUnsetTags();
+        if (isLoading) return;
+        if (aiTags.length) {
+            setTags([...tags, ...aiTags]);
+            setAITags([]);
+            return
+        }
+        await generateTagsFromFile(asset.uri);
+        if (error) {
+            console.error(error);
+            return;
+        }
     }
 
     useEffect(() => {
@@ -100,21 +134,24 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
             <Pressable style={styles.container} onPress={onSelected} >
                 {
                     isDiffTags(oldTags, tags) || aiTags.length
-                    ? <Tag style={{ backgroundColor: undoColor }} tag={!confirmUndo ? "Undo" : "Confirm?"} onPress={onUndo} />
-                    : null
+                        ? <Tag style={{ backgroundColor: undoColor }} tag={!confirmUndo ? "Undo" : "Confirm?"} onPress={onUndo}
+                            icon={<Feather name="corner-down-left" size={11} color={color} />}
+                        />
+                        : null
                 }
                 {
                     tags.map((tag, i) => <Tag key={i} index={i} tag={tag} onPress={onTagPress} focus={focus} />)
                 }
                 <TextInput
                     ref={inputRef}
-                    style={[styles.tag, styles.input, {
+                    style={[styles.tag, styles.tagText, styles.input, {
                         color: color,
                         backgroundColor: field,
                     }]}
                     placeholder="Add tag"
                     placeholderTextColor={mutedColor}
                     value={newTag}
+                    onPress={onUnsetTags}
                     onChangeText={setNewTag}
                     onSubmitEditing={onSubmit}
                     blurOnSubmit={false}
@@ -122,19 +159,19 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                     caretHidden={focus > -1}
                 />
                 {
-                    // taggingEnabled &&
+                    taggingEnabled &&
                     <>
                         {
-                            aiTags.map((tag, i) => <Tag key={i} tag={tag} />)
+                            aiTags.map((tag, i) => <Tag key={i} tag={tag} onPress={onUnsetTags} style={{
+                                backgroundColor: generateColor
+                            }} />)
                         }
-                        <Pressable
-                            // onPress={() => generateTagsFromFile(asset.uri)}
-                            style={{ flexDirection: 'row', alignItems: 'center', margin: 4 }} >
-                            <View style={styles.tag}>
-                                <Feather name="refresh-cw" size={16} color={color} />
-                                <ThemedText type='small' style={{ color: color }} >Generate tags</ThemedText>
-                            </View>
-                        </Pressable>
+                        <Tag tag={!isLoading ? aiTags.length ? "Add" : "Generate" : "Loading"} onPress={onGenerateOrAdd}
+                            icon={<Feather name="refresh-cw" size={12} color={color} />}
+                            style={{
+                                backgroundColor: generateColor
+                            }}
+                        />
                     </>
                 }
             </Pressable>
@@ -142,20 +179,23 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
     );
 }
 
-const Tag = ({ index, tag, onPress, focus, style }: {
+const Tag = ({ index, tag, onPress, focus, style, icon }: {
     index?: number,
     tag: string,
     onPress?: (i?: number) => void,
     focus?: number,
     style?: StyleProp<TextStyle>,
+    icon?: ReactNode,
 }) => {
     const [field, selectedColor, color] = useThemeColor({}, ['field', 'tabIconSelected', 'text']);
+    const isFocused = focus !== undefined && focus === index;
     return (
-        <Pressable focusable onPress={() => onPress?.(index)} style={{ margin: 4 }} >
-            <ThemedText type='small' style={[styles.tag, {
-                backgroundColor: focus !== undefined && focus === index ? selectedColor : field,
-                borderColor: focus !== undefined && focus === index ? color : 'transparent',
-            }, style]} >{tag}</ThemedText>
+        <Pressable focusable onPress={() => onPress?.(index)} style={[styles.tag, {
+            backgroundColor: isFocused ? selectedColor : field,
+            borderColor: isFocused ? color : 'transparent',
+        }, style]} >
+            {icon}
+            <ThemedText type='small' style={styles.tagText} >{tag}</ThemedText>
         </Pressable>
     );
 }
@@ -175,20 +215,23 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         alignItems: 'flex-start',
         padding: 16,
+        gap: 8,
     },
     tag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
         borderRadius: 4,
         borderWidth: 1,
-        paddingLeft: 6,
-        paddingTop: 7,
-        paddingRight: 5,
+        padding: 4,
+        paddingTop: 6,
+    },
+    tagText: {
         fontSize: 14,
-        lineHeight: 13,
-        height: 24,
     },
     input: {
-        margin: 4,
-        paddingTop: 1,
         borderColor: "transparent",
+        height: 26,
     }
 });

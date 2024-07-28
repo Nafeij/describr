@@ -1,8 +1,9 @@
 export type RecursivePartial<T> = {
-  [P in keyof T]?:
-  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
-  T[P] extends object | undefined ? RecursivePartial<T[P]> :
-  T[P];
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
+    : T[P] extends object | undefined
+    ? RecursivePartial<T[P]>
+    : T[P];
 };
 
 // https://stackoverflow.com/a/46842181
@@ -20,17 +21,24 @@ export const filterAsync = async (
 
 export const exifToTags = (exif?: { ImageDescription?: string }) => {
   if (!exif) return [];
-  return exif.ImageDescription?.split(",").map(item => item.trim()) ?? [];
+  return exif.ImageDescription?.split(",") ?? [];
 };
 
 export const cleanTags = (tags: string[]) => {
-  return tags.map((tag) => tag.replace(/[".\\/]/g, "")).filter(Boolean);
-}
+  return [
+    ...new Set(
+      tags.map((tag) => tag.trim().replace(/[".\\/]/g, "")).filter(Boolean)
+    ),
+  ];
+};
 
 export const tagsToExif = (tags: string[]) => {
   return { ImageDescription: tags.join(",") };
 };
 
 export const isDiffTags = (oldTags: string[], newTags: string[]) => {
-  return oldTags.length != newTags.length || oldTags.some((tag) => !newTags.includes(tag));
+  return (
+    oldTags.length != newTags.length ||
+    oldTags.some((tag) => !newTags.includes(tag))
+  );
 };
