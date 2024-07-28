@@ -9,7 +9,7 @@ import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 
 export default function Settings() {
-  const [color, mutedColor, backgroundColor, modalColor] = useThemeColor({}, ['tint', 'muted', 'background', 'modal']);
+  const [color, mutedColor, backgroundColor, modalColor, tintColor] = useThemeColor({}, ['text', 'muted', 'background', 'modal', 'tint']);
   const [openKey, setOpenKey] = useState(false);
   const [settings, updateSettings] = useSettings();
   return (
@@ -28,6 +28,7 @@ export default function Settings() {
           <View style={styles.row}>
             <ThemedText type="subsubtitle" >Enable Tag Suggestions</ThemedText>
             <Switch
+              trackColor={{ true: tintColor }}
               value={settings.AI.taggingEnabled}
               onValueChange={(value) => updateSettings({ AI: { taggingEnabled: value } })}
             />

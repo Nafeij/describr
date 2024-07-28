@@ -7,7 +7,7 @@ import { StyleSheet, View } from 'react-native';
 import { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function HomeLayout() {
-    const [color] = useThemeColor({}, ['tint']);
+    const [color] = useThemeColor({}, ['text']);
     const path = usePathname();
     const isInSearch = useSharedValue(false);
     const marginRight = useSharedValue(36);

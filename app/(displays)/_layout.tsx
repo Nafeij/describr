@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function AlbumLayout() {
-  const [color, backgroundColor] = useThemeColor({}, ['tint', 'background']);
+  const [color, backgroundColor] = useThemeColor({}, ['text', 'background']);
   return (
     <Stack screenOptions={{
       headerShown: true,

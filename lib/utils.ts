@@ -30,3 +30,7 @@ export const cleanTags = (tags: string[]) => {
 export const tagsToExif = (tags: string[]) => {
   return { ImageDescription: tags.join(",") };
 };
+
+export const isDiffTags = (oldTags: string[], newTags: string[]) => {
+  return oldTags.length != newTags.length || oldTags.some((tag) => !newTags.includes(tag));
+};

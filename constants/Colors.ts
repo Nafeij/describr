@@ -13,10 +13,13 @@ export const Colors = {
     modal: '#F9FAFB',
     field: '#e9e9e9',
     tint: tintColorLight,
+    tintAlt: tintColorDark,
     muted: '#adb3b8',
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    confirm: '#2ECC71',
+    danger: '#E74C3C',
   },
   dark: {
     text: '#ECEDEE',
@@ -28,5 +31,7 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    confirm: '#156e3a',
+    danger: '#b93f30',
   },
 };

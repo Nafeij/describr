@@ -18,7 +18,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const isInSearch = usePathname().endsWith("search");
     const ref = useRef<TextInput>(null);
     const [selected, setSelected] = useState(false);
-    const [activeColor, color, backgroundColor] = useThemeColor({}, ['tint', 'icon', 'field']);
+    const [color, mutedColor, backgroundColor] = useThemeColor({}, ['text', 'icon', 'field']);
 
     const clear = () => {
         if (query) {
@@ -54,7 +54,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
         <Feather
             name={(selected || query || isInSearch) ? "x" : "search"}
             size={20}
-            color={color}
+            color={mutedColor}
             style={{ marginLeft: 1 }}
             onPress={clear}
         />
@@ -62,14 +62,14 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
             ref={ref}
             placeholder="Search"
             style={{
-                color: activeColor,
+                color: color,
                 flex: 1,
             }}
             value={query}
             onFocus={() => setSelected(true)}
             onBlur={() => setSelected(false)}
             onChangeText={query => setQuery(query)}
-            placeholderTextColor={color}
+            placeholderTextColor={mutedColor}
         />
     </Animated.View>
 }
