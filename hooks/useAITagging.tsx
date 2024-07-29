@@ -1,9 +1,9 @@
+import { cleanTags } from "@/lib/utils";
 import { readAsStringAsync } from "expo-file-system";
 import { useCallback, useState } from "react";
 import { lookup } from "react-native-mime-types";
 import EventSource from 'react-native-sse';
 import { useSettings } from "./useSettings";
-import { cleanTags } from "@/lib/utils";
 
 const build_prompt = (base64Data: string) => (
   {
@@ -37,20 +37,21 @@ export function useAITagging() {
   const [settings] = useSettings();
   const [aiTags, setAITags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<unknown>();
+  const [error, setError] = useState<Error | null>(null);
 
   const generateTagsFromFile = useCallback(async (uri: string) => {
+    setError(null);
     if (aiTags.length > 0) {
-      console.error("Tags already generated, consider clearing them first");
+      setError(new Error("Tags generated, please clear them first"));
       return;
     }
     if (!settings.AI.taggingEnabled || !settings.AI.key) {
-      console.error("AI tagging is disabled or API key is not set");
+      setError(new Error("AI is disabled or API key is not set"));
       return;
     }
     const mime = lookup(uri);
     if (!mime || !mime.startsWith("image/")) {
-      console.error("Invalid file type for tagging");
+      setError(new Error("Invalid file type for tagging"));
       return;
     }
     setIsLoading(true);
@@ -72,7 +73,7 @@ export function useAITagging() {
     // newEs.addEventListener('open', () => { console.debug("SSE opened") });
     newEs.addEventListener('error', (e) => {
       setIsLoading(false);
-      setError(e);
+      setError(new Error(`SSE error: ${e.type}`));
       // console.error("SSE error", e)
     });
     setAITags([]);

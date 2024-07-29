@@ -44,16 +44,19 @@ export default function Settings() {
               <ThemedText type="subsubtitle" >API Key</ThemedText>
             </View>
           </Pressable>
-          <TextInput
-            placeholder="API Key"
-            style={[styles.input, { color, backgroundColor }, { display: openKey ? 'flex' : 'none' }]}
-            placeholderTextColor={mutedColor}
-            value={settings.AI.key}
-            onChangeText={(value) => updateSettings({ AI: { key: value } })}
-            selection={{ start: 0 }}
-            autoCorrect={false}
-            autoComplete='off'
-          />
+          {
+            openKey && (
+              <TextInput
+                placeholder="API Key"
+                style={[styles.input, { color, backgroundColor }]}
+                placeholderTextColor={mutedColor}
+                value={settings.AI.key}
+                onChangeText={(value) => updateSettings({ AI: { key: value } })}
+                autoCorrect={false}
+                autoComplete='off'
+              />
+            )
+          }
         </View>
       </ScrollView>
     </>

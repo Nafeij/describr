@@ -108,12 +108,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
             return
         }
         await generateTagsFromFile(asset.uri);
-        if (error) {
-            console.error(error);
-            return;
-        }
     }
-
     useEffect(() => {
         tagsRef.current = tags;
     }, [tags]);
@@ -163,7 +158,12 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                                 backgroundColor: generateColor
                             }} />)
                         }
-                        <Tag tag={!isLoading ? aiTags.length ? "Add" : "Generate" : "Loading"} onPress={onGenerateOrAdd}
+                        <Tag tag={
+                            error ? error.message
+                            : isLoading ? "Loading"
+                            : aiTags.length ? "Add"
+                            : "Generate"
+                        } onPress={onGenerateOrAdd}
                             icon={<Feather name="refresh-cw" size={12} color={color} />}
                             style={{
                                 backgroundColor: generateColor
