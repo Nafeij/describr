@@ -1,14 +1,15 @@
 import AlbumList from "@/components/AlbumList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { SelectorContext, useSelectorState } from "@/hooks/useSelector";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { exifToTags } from "@/lib/utils";
-import { AssetInfo } from "expo-media-library";
+import { Asset, AssetInfo } from "expo-media-library";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { View } from "react-native";
 
 export default function Search() {
+    const selectorContext = useSelectorState<Asset>();
     const { id, query } = useLocalSearchParams<{ id?: string, query: string }>();
     const [{ numTotal, numFiltered }, setCounts] = useState({ numTotal: 0, numFiltered: 0 });
     const [color] = useThemeColor({}, ['icon']);
@@ -31,18 +32,20 @@ export default function Search() {
 
     return (
         <ThemedView style={{ flex: 1 }}>
-            <ThemedText type="defaultSemiBold" style={{ padding: 8, paddingTop: 0, color }}>{numFiltered} of {numTotal} items</ThemedText>
-            <AlbumList
-                preFilters={{
-                    album: id,
-                    mediaType: ['photo', 'video'],
-                    first: 256,
-                    sortBy: 'creationTime',
-                }}
-                postFilter={filter}
-                setCounts={setCountHandle}
-                fetchInfo
-            />
+            <SelectorContext.Provider value={selectorContext}>
+                <ThemedText type="defaultSemiBold" style={{ padding: 8, paddingTop: 0, color }}>{numFiltered} of {numTotal} items</ThemedText>
+                <AlbumList
+                    preFilters={{
+                        album: id,
+                        mediaType: ['photo', 'video'],
+                        first: 256,
+                        sortBy: 'creationTime',
+                    }}
+                    postFilter={filter}
+                    setCounts={setCountHandle}
+                    fetchInfo
+                />
+            </SelectorContext.Provider>
         </ThemedView>
     );
 }

@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
-export default function HomeLayout() {
+export default function Header() {
     const [color] = useThemeColor({}, ['text']);
     const path = usePathname();
     const isInSearch = useSharedValue(false);
@@ -26,7 +26,7 @@ export default function HomeLayout() {
     return (
         <View style={styles.container}>
             <SearchBar styles={[animStyle, { zIndex: 1 }]} />
-            <Link href="settings" push style={{ position: 'absolute', right: 0, padding: 6 }}>
+            <Link href="/settings" push style={{ position: 'absolute', right: 0, padding: 6 }}>
                 <Feather name="settings" size={20} color={color} />
             </Link>
         </View>

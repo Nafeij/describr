@@ -1,34 +1,40 @@
 import AlbumList from "@/components/AlbumList";
+import { SelectorHeader } from "@/components/SelectorHeader";
 import { ThemedText } from "@/components/ThemedText";
+import { SelectorContext, useSelectorState } from "@/hooks/useSelector";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
+import { Asset } from "expo-media-library";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 
 export default function AlbumView() {
     const { id, title, count } = useLocalSearchParams<{ id: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-
+    const selectorContext = useSelectorState<Asset>();
+    const [ selected ] = selectorContext;
+    const hasSelected = selected.some(e => e.selected !== undefined);
     return (
-        <>
-            <Stack.Screen options={{
+        <SelectorContext.Provider value={selectorContext}>
+            {hasSelected ? <SelectorHeader /> : <Stack.Screen options={{
                 headerTitle: () => (
                     <View>
                         <ThemedText type="title">{title}</ThemedText>
                         <ThemedText type="default" style={{ color: muted }}>{count}</ThemedText>
                     </View>
                 ),
-                title: title ?? "Untitled Album",
+                headerBackVisible: true,
+                headerLeft: () => <></>,
                 headerRight: () =>
-                    <Link href={{ pathname: "search", params: { id } }} push>
+                    <Link href={{ pathname: "/search", params: { id } }} push>
                         <Feather
                             name="search"
                             size={20}
                             color={color}
                             style={{ marginRight: 16 }}
                         />
-                    </Link>
-            }} />
+                    </Link>,
+            }} />}
             <AlbumList
                 preFilters={{
                     album: id,
@@ -37,6 +43,6 @@ export default function AlbumView() {
                     sortBy: ['creationTime', 'modificationTime'],
                 }}
             />
-        </>
+        </SelectorContext.Provider>
     );
 }

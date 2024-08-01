@@ -38,7 +38,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
 
     useEffect(() => {
         if (selected) {
-            !isInSearch && router.push("search");
+            !isInSearch && router.push("/search");
         }
     }, [selected]);
 
