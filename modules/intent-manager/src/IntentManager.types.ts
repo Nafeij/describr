@@ -2,7 +2,6 @@ export enum ActivityAction {
   MAIN = 'android.intent.action.MAIN',
   VIEW = 'android.intent.action.VIEW',
   GET_CONTENT = 'android.intent.action.GET_CONTENT',
-  // TODO: Support more actions
 }
 
 export type Intent = {

@@ -1,5 +1,5 @@
-import { AssetInfo, Asset, getAssetsAsync, getAssetInfoAsync, AssetsOptions } from "expo-media-library";
-import { useState, useEffect, useCallback } from "react";
+import { Asset, AssetInfo, AssetsOptions, getAssetInfoAsync, getAssetsAsync } from "expo-media-library";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSelectorState } from "./useSelector";
 
 export function useFilteredAssets({
@@ -66,4 +66,12 @@ export function useFilteredAssets({
     }, [postFilter]);
 
     return { assets, filtered, loading, getPage, ...selectorOps };
+}
+
+export const FilteredAssetContext = createContext<ReturnType<typeof useFilteredAssets>>(null as any);
+
+export const FilteredAssetProvider = FilteredAssetContext.Provider;
+
+export function useFilteredAssetContext() {
+    return useContext(FilteredAssetContext);
 }

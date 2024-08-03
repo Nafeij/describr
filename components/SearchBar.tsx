@@ -1,13 +1,14 @@
 import { useDebounce } from "@/hooks/useDebounce";
+import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { StyleProp, StyleSheet, TextInput, ViewStyle } from "react-native";
-import Animated from "react-native-reanimated";
+import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from "react-native";
 
 export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle> }) => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
+    const { filtered, clear: clearSelector } = useFilteredAssetContext();
     const [query, setQuery] = useState(_query);
     const debouncedSetParams = useDebounce({
         callback: () => {
@@ -20,8 +21,10 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const [selected, setSelected] = useState(false);
     const [color, mutedColor, backgroundColor] = useThemeColor({}, ['text', 'icon', 'field']);
 
-    const clear = () => {
-        if (query) {
+    const clearSearch = () => {
+        if (filtered.some(e => e.selected !== undefined)) {
+            clearSelector();
+        } else if (query) {
             setQuery("");
         } else if (ref.current?.isFocused()) {
             ref.current?.blur();
@@ -50,13 +53,13 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
         }
     }, [isInSearch]);
 
-    return <Animated.View style={[styles.container, { backgroundColor }, propStyles]}>
+    return <View style={[styles.container, { backgroundColor }, propStyles]}>
         <Feather
             name={(selected || query || isInSearch) ? "x" : "search"}
             size={20}
             color={mutedColor}
             style={{ marginLeft: 1 }}
-            onPress={clear}
+            onPress={clearSearch}
         />
         <TextInput
             ref={ref}
@@ -71,7 +74,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
             onChangeText={query => setQuery(query)}
             placeholderTextColor={mutedColor}
         />
-    </Animated.View>
+    </View>
 }
 
 const styles = StyleSheet.create({

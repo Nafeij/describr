@@ -3,8 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 import _ from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 
-// TODO
-
 export type Settings = {
     AI: {
         taggingEnabled: boolean;
