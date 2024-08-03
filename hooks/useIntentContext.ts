@@ -9,11 +9,11 @@ import {
   getContentUriAsync,
   getInfoAsync,
 } from "expo-file-system";
-import { useCallback, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { lookup } from "react-native-mime-types";
 import match from "mime-match";
 
-export function useIntentManager() {
+export function useIntent() {
   const [intent] = useState(getIntent);
   const setResult = useCallback(
     async ({ isOK, action, uri }: ResultOptions) => {
@@ -44,4 +44,14 @@ export function useIntentManager() {
     [intent.type, intent.extras]
   );
   return { intent, setResult, isMatchingType };
+}
+
+const IntentContext = createContext<ReturnType<typeof useIntent>>(
+  {} as any
+);
+
+export const IntentProvider = IntentContext.Provider;
+
+export function useIntentContext() {
+  return useContext(IntentContext);
 }

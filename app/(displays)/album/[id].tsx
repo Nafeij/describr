@@ -1,26 +1,36 @@
 import AlbumList from "@/components/AlbumList";
-import { SelectorHeader } from "@/components/SelectorHeader";
+import { SelectorHeader } from "@/components/Selector";
 import { ThemedText } from "@/components/ThemedText";
-import { SelectorContext, useSelectorState } from "@/hooks/useSelector";
+import { useFilteredAssets } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
-import { Asset } from "expo-media-library";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 
 export default function AlbumView() {
     const { id, title, count } = useLocalSearchParams<{ id: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-    const selectorContext = useSelectorState<Asset>();
-    const [ selected ] = selectorContext;
-    const hasSelected = selected.some(e => e.selected !== undefined);
+    const {filtered, loading, getPage, toggleSelected, toggleAll, clear} = useFilteredAssets({
+        preFilters: {
+            album: id,
+            mediaType: ['photo', 'video'],
+            first: 128,
+            sortBy: ['creationTime', 'modificationTime'],
+        },
+    });
+    const hasSelected = filtered.some(e => e.selected !== undefined);
     return (
-        <SelectorContext.Provider value={selectorContext}>
-            {hasSelected ? <SelectorHeader /> : <Stack.Screen options={{
+        <>
+            {hasSelected ? <SelectorHeader
+                numTotal={filtered.length}
+                numSelected={filtered.filter(e => e.selected).length}
+                toggleAll={toggleAll}
+                clear={clear}
+            /> : <Stack.Screen options={{
                 headerTitle: () => (
                     <View>
                         <ThemedText type="title">{title}</ThemedText>
-                        <ThemedText type="default" style={{ color: muted }}>{count}</ThemedText>
+                        <ThemedText type="default" style={{ color: muted }}>{`${count} items`}</ThemedText>
                     </View>
                 ),
                 headerBackVisible: true,
@@ -36,13 +46,11 @@ export default function AlbumView() {
                     </Link>,
             }} />}
             <AlbumList
-                preFilters={{
-                    album: id,
-                    mediaType: ['photo', 'video'],
-                    first: 128,
-                    sortBy: ['creationTime', 'modificationTime'],
-                }}
+                filtered={filtered}
+                loading={loading}
+                getPage={getPage}
+                toggleSelected={toggleSelected}
             />
-        </SelectorContext.Provider>
+        </>
     );
 }

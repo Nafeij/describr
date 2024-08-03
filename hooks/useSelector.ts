@@ -1,8 +1,8 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 
 type IDable = { id: string };
 
-type Selectable = { selected?: boolean };
+export type Selectable = { selected?: boolean };
 
 export function useSelectorState<T extends IDable>() {
   const [all, setAll] = useState<(T & Selectable)[]>([]);
@@ -27,15 +27,3 @@ export function useSelectorState<T extends IDable>() {
 
   return [all, setAll, { toggleSelected, toggleAll, clear }] as const;
 }
-
-export const SelectorContext = createContext<
-  ReturnType<typeof useSelectorState<any>>
->([
-  [],
-  () => {},
-  { toggleSelected: () => {}, toggleAll: () => {}, clear: () => {} },
-]);
-
-export function useSelectorContext<T extends IDable>() {
-  return useContext(SelectorContext) as ReturnType<typeof useSelectorState<T>>;
-};
