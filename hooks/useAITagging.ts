@@ -3,7 +3,7 @@ import { readAsStringAsync } from "expo-file-system";
 import { useCallback, useState } from "react";
 import { lookup } from "react-native-mime-types";
 import EventSource from 'react-native-sse';
-import { useSettings } from "./useSettings";
+import { useSettings, useSettingsContext } from "./useSettingsContext";
 
 const build_prompt = (base64Data: string) => (
   {
@@ -34,7 +34,7 @@ const build_prompt = (base64Data: string) => (
 
 export function useAITagging() {
   const [es, setES] = useState<EventSource | null>(null);
-  const [settings] = useSettings();
+  const [settings] = useSettingsContext();
   const [aiTags, setAITags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

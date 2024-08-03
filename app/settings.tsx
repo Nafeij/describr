@@ -1,6 +1,6 @@
 
 import { ThemedText } from '@/components/ThemedText';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettingsContext } from '@/hooks/useSettingsContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Feather } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
@@ -11,7 +11,7 @@ import { TextInput } from 'react-native-gesture-handler';
 export default function Settings() {
   const [color, mutedColor, backgroundColor, modalColor, tintColor] = useThemeColor({}, ['text', 'muted', 'background', 'modal', 'tint']);
   const [openKey, setOpenKey] = useState(false);
-  const [settings, updateSettings] = useSettings();
+  const [settings, updateSettings] = useSettingsContext();
   return (
     <>
       <Stack.Screen options={{

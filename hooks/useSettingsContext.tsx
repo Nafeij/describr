@@ -1,7 +1,7 @@
 import { RecursivePartial } from '@/lib/utils';
 import * as SecureStore from 'expo-secure-store';
 import _ from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 export type Settings = {
     AI: {
@@ -41,4 +41,12 @@ export function useSettings() {
     }, [settings]);
 
     return [settings, updateSettings] as const;
+}
+
+export const SettingsContext = createContext<ReturnType<typeof useSettings>>({} as any);
+
+export const SettingsProvider = SettingsContext.Provider;
+
+export function useSettingsContext() {
+    return useContext(SettingsContext);
 }

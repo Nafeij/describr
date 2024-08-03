@@ -1,6 +1,7 @@
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { IntentProvider, useIntent } from '@/hooks/useIntentContext';
+import { SettingsProvider, useSettings } from '@/hooks/useSettingsContext';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -14,6 +15,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const intent = useIntent();
+  const settings = useSettings();
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -31,20 +33,22 @@ export default function RootLayout() {
 
   return (
     <IntentProvider value={intent}>
-      <ThemeProvider value={theme}>
-        <ThemedView style={{ flex: 1 }}>
-          <GestureHandlerRootView>
-            <Stack screenOptions={{
-              headerShown: false,
-            }}>
-              <Stack.Screen name="(home)" />
-              <Stack.Screen name="(displays)" />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="settings" />
-            </Stack>
-          </GestureHandlerRootView>
-        </ThemedView>
-      </ThemeProvider>
+      <SettingsProvider value={settings}>
+        <ThemeProvider value={theme}>
+          <ThemedView style={{ flex: 1 }}>
+            <GestureHandlerRootView>
+              <Stack screenOptions={{
+                headerShown: false,
+              }}>
+                <Stack.Screen name="(home)" />
+                <Stack.Screen name="(displays)" />
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen name="settings" />
+              </Stack>
+            </GestureHandlerRootView>
+          </ThemedView>
+        </ThemeProvider>
+      </SettingsProvider>
     </IntentProvider>
   );
 }

@@ -25,10 +25,9 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
         if (filtered.some(e => e.selected !== undefined)) {
             clearSelector();
             return true;
-        } else if (query) {
+        }
+        if (query || ref.current?.isFocused()) {
             setQuery("");
-            return true;
-        } else if (ref.current?.isFocused()) {
             ref.current?.blur();
             return true;
         }
