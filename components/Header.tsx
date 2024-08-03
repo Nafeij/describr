@@ -9,9 +9,9 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { SelectAllButton } from './Selector';
 
 const ACTIVE_WIDTHS = {
-    MAIN: 34,
-    SELECT: 76,
-    SELECT_ALL: 90,
+    MAIN: 36,
+    SELECT: 78,
+    SELECT_ALL: 92,
 };
 
 export default function Header() {
@@ -44,10 +44,10 @@ export default function Header() {
         <View style={styles.container}>
             <SearchBar styles={{ zIndex: 1 }} />
             <Animated.View style={[selectorAnimStyle, styles.buttonContainer]}>
-                <SelectAllButton isAllSelected={filtered.every(e => e.selected)} toggleAll={toggleAll} />
+                <SelectAllButton isAllSelected={filtered.every(e => e.selected)} toggleAll={toggleAll} style={styles.button}/>
             </Animated.View>
             <Animated.View style={[settingAnimStyle, styles.buttonContainer]}>
-                <Link href="/settings" push style={{ padding: 6, width: 32 }}>
+                <Link href="/settings" push style={[styles.button, {marginRight: 6}]}>
                     <Feather name="settings" size={20} color={color} />
                 </Link>
             </Animated.View>
@@ -63,9 +63,14 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     buttonContainer: {
+        position: 'relative',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        // justifyContent: 'flex-end',
         flexDirection: 'row',
         overflow: 'hidden',
+    },
+    button: {
+        position: 'absolute',
+        right: 0,
     }
 });

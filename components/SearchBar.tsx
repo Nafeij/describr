@@ -3,8 +3,8 @@ import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BackHandler, StyleProp, StyleSheet, TextInput, View, ViewStyle } from "react-native";
 
 export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle> }) => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
@@ -21,17 +21,24 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const [selected, setSelected] = useState(false);
     const [color, mutedColor, backgroundColor] = useThemeColor({}, ['text', 'icon', 'field']);
 
-    const clearSearch = () => {
+    const handleBack = useCallback(() => {
         if (filtered.some(e => e.selected !== undefined)) {
             clearSelector();
+            return true;
         } else if (query) {
             setQuery("");
+            return true;
         } else if (ref.current?.isFocused()) {
             ref.current?.blur();
-        } else if (router.canGoBack()) {
-            router.back();
+            return true;
         }
-    };
+        return false;
+    }, [filtered, query]);
+
+    useEffect(() => {
+        const sub = BackHandler.addEventListener("hardwareBackPress", handleBack);
+        return () => sub.remove();
+    }, [handleBack]);
 
     useEffect(() => {
         if (query !== _query) {
@@ -59,7 +66,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
             size={20}
             color={mutedColor}
             style={{ marginLeft: 1 }}
-            onPress={clearSearch}
+            onPress={() => !handleBack() && router.canGoBack() && router.back()}
         />
         <TextInput
             ref={ref}
