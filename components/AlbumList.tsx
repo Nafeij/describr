@@ -50,7 +50,7 @@ function AssetEntry({
     intentContext: ReturnType<typeof useIntentContext>;
 }) {
     // const { intent, setResult, isMatchingType } = useIntentManager();
-    const [color, background, selectedColor] = useThemeColor({}, ['text', 'background', 'tint']);
+    const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
     const { intent, setResult, isMatchingType } = intentContext;
     const needContent = intent?.action === ActivityAction.GET_CONTENT;
     const isContentType = useMemo(() => isMatchingType(uri), [uri]);
@@ -66,7 +66,7 @@ function AssetEntry({
                     return;
                 }
                 if (needContent && isContentType) {
-                    setResult({ isOK: true, uri });
+                    setResult({ isOK: true, uris: [uri] });
                     return;
                 }
                 router.push(`/image/${id}`);
@@ -79,10 +79,13 @@ function AssetEntry({
                 autoplay={false}
             />
             {selected !== undefined && <Feather
-                name={selected ? 'plus-circle' : 'circle'}
-                size={24}
+                name={selected ? 'check' : 'circle'}
+                size={selected ? 20 : 24}
                 color={color}
-                style={[styles.check, { backgroundColor: selected ? selectedColor : background }]}
+                style={[styles.check, {
+                    backgroundColor: selected ? selectedColor : "transparent",
+                    padding: selected ? 2: 0,
+                }]}
             />}
         </Pressable>
     );
@@ -96,8 +99,8 @@ const styles = StyleSheet.create({
     },
     check: {
         position: 'absolute',
-        top: 4,
-        right: 4,
+        top: 6,
+        right: 6,
         borderRadius: 12,
     },
 });

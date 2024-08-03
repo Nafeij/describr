@@ -24,7 +24,7 @@ export const Colors = {
   dark: {
     text: '#ECEDEE',
     background: '#161616',
-    modal: '#1e2122',
+    modal: '#1f2122',
     field: '#313436',
     tint: tintColorDark,
     muted: '#64686b',

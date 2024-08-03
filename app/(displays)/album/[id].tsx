@@ -1,3 +1,4 @@
+import ActionDrawer from "@/components/ActionDrawer";
 import AlbumList from "@/components/AlbumList";
 import { SelectorHeader } from "@/components/Selector";
 import { ThemedText } from "@/components/ThemedText";
@@ -10,7 +11,7 @@ import { View } from "react-native";
 export default function AlbumView() {
     const { id, title, count } = useLocalSearchParams<{ id: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-    const {filtered, loading, getPage, toggleSelected, toggleAll, clear} = useFilteredAssets({
+    const { filtered, loading, getPage, toggleSelected, toggleAll, clear } = useFilteredAssets({
         preFilters: {
             album: id,
             mediaType: ['photo', 'video'],
@@ -51,6 +52,7 @@ export default function AlbumView() {
                 getPage={getPage}
                 toggleSelected={toggleSelected}
             />
+            <ActionDrawer filtered={filtered} />
         </>
     );
 }

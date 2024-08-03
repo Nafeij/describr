@@ -11,5 +11,5 @@ internal data class ResultOptions(
   var action: String? = null,
 
   @Field
-  var uri: String? = null
+  var uris: List<String> = emptyList()
 ) : Record

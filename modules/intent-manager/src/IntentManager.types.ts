@@ -17,5 +17,5 @@ export type Intent = {
 export type ResultOptions = {
   isOK?: boolean;
   action?: string;
-  uri?: string;
+  uris?: string[];
 };

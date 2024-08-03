@@ -23,7 +23,7 @@ export function SelectorHeader({
         <Stack.Screen options={{
             headerTitle: () => (
                 <View>
-                    <ThemedText type="title" style={{ marginLeft: 30 }}>{numSelected ? `${numSelected} selected` : "Select item"}</ThemedText>
+                    <ThemedText type="title" style={{ marginLeft: 25 }}>{numSelected ? `${numSelected} selected` : "Select item"}</ThemedText>
                 </View>
             ),
             headerLeft: () =>
@@ -32,6 +32,7 @@ export function SelectorHeader({
                         name="x"
                         size={24}
                         color={color}
+                        style={{ padding: 6, marginLeft: -6 }}
                     />
                 </Pressable>,
             headerBackVisible: false,

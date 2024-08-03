@@ -9,26 +9,34 @@ import {
   getContentUriAsync,
   getInfoAsync,
 } from "expo-file-system";
+import match from "mime-match";
 import { createContext, useCallback, useContext, useState } from "react";
 import { lookup } from "react-native-mime-types";
-import match from "mime-match";
 
 export function useIntent() {
   const [intent] = useState(getIntent);
   const setResult = useCallback(
-    async ({ isOK, action, uri }: ResultOptions) => {
-      if (!isOK || !uri) {
+    async ({ isOK, action, uris }: ResultOptions) => {
+      if (!isOK || !uris?.length) {
         setResultBase({ isOK: false });
         return;
       }
-      const destFile = (cacheDirectory ?? "") + new URL(uri).pathname;
-      if (!(await getInfoAsync(destFile)).exists) {
-        await copyAsync({ from: uri, to: destFile });
+      if (!intent.extras?.["android.intent.extra.EXTRA_ALLOW_MULTIPLE"] && uris.length > 1) {
+        console.error("Multiple files are not allowed", { isOK, action, uris });
+        setResultBase({ isOK: false });
+        return;
       }
-      const cUri = await getContentUriAsync(destFile);
-      setResultBase({ isOK, action, uri: cUri });
+      const destFiles = await Promise.all(
+        uris.map(async (uri) => {
+          const destFile = (cacheDirectory ?? "") + new URL(uri).pathname;
+          if (!(await getInfoAsync(destFile)).exists) {
+            await copyAsync({ from: uri, to: destFile });
+          }
+          return getContentUriAsync(destFile);
+        }));
+      setResultBase({ isOK, action, uris: destFiles });
     },
-    []
+    [intent]
   );
   const isMatchingType = useCallback(
     (uri: string) => {

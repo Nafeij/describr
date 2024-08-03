@@ -42,13 +42,13 @@ export default function RootLayout() {
               }}>
                 <Stack.Screen name="(home)" />
                 <Stack.Screen name="(displays)" />
-                <Stack.Screen name="+not-found" />
                 <Stack.Screen name="settings" />
+                <Stack.Screen name="+not-found" />
               </Stack>
             </GestureHandlerRootView>
           </ThemedView>
         </ThemeProvider>
       </SettingsProvider>
-    </IntentProvider>
+    </IntentProvider >
   );
 }
