@@ -56,6 +56,7 @@ export function useFilteredAssets({
         const filtered = filter(assets);
 		if (filtered.length > 0 || assets.length < 1) {
 			setFiltered(filtered);
+			setLoading(false);
 			return;
 		}
 		setFiltered([]);
