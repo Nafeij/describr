@@ -14,9 +14,7 @@ export default function ImageView() {
 
     useEffect(() => {
         if (!id) return;
-        (async () => {
-            setAsset(await getAssetInfoAsync(id));
-        })();
+        getAssetInfoAsync(id).then(setAsset);
     }, [id]);
 
     const scale = useSharedValue({ start: 1, current: 1 });

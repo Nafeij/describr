@@ -29,9 +29,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         const old = exifToTags(asset.exif);
         const tags = tagsRef.current;
         if (isDiffTags(old, tags)) {
-            (async () => {
-                await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
-            })();
+            writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
         }
     }
 
@@ -98,7 +96,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         setAITags([]);
     }
 
-    const onGenerateOrAdd = async () => {
+    const onGenerateOrAdd = () => {
         unset();
         setSelected(true);
         if (isLoading) return;
@@ -107,7 +105,7 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
             setAITags([]);
             return
         }
-        await generateTagsFromFile(asset.uri);
+        generateTagsFromFile(asset.uri);
     }
     useEffect(() => {
         tagsRef.current = tags;
@@ -160,9 +158,9 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
                         }
                         <Tag tag={
                             error ? error.message
-                            : isLoading ? "Loading"
-                            : aiTags.length ? "Add"
-                            : "Generate"
+                                : isLoading ? "Loading"
+                                    : aiTags.length ? "Add"
+                                        : "Generate"
                         } onPress={onGenerateOrAdd}
                             icon={<Feather name="refresh-cw" size={12} color={color} />}
                             style={{

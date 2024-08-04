@@ -25,13 +25,12 @@ export default function ActionDrawer({
     });
     const [showModal, setShowModal] = useState(false);
 
-    const setAllResult = async () => {
+    const setAllResult = () => {
         setLoading(loading => ({ ...loading, return: true }));
-        await setResult({
+        setResult({
             isOK: true,
             uris: filtered.filter(e => e.selected && isMatchingType(e.uri)).map(e => e.uri),
-        });
-        setLoading(loading => ({ ...loading, return: false }));
+        }).then(() => setLoading(loading => ({ ...loading, return: false })));
     }
 
     useEffect(() => {

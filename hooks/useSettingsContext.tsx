@@ -34,10 +34,10 @@ export function useSettings() {
         });
     }, []);
 
-    const updateSettings = useCallback(async (newSettings: RecursivePartial<Settings>) => {
+    const updateSettings = useCallback((newSettings: RecursivePartial<Settings>) => {
         const updatedSettings = _.merge({}, settings, newSettings);
         setSettings(updatedSettings);
-        await SecureStore.setItemAsync("settings", JSON.stringify(updatedSettings));
+        SecureStore.setItemAsync("settings", JSON.stringify(updatedSettings));
     }, [settings]);
 
     return [settings, updateSettings] as const;

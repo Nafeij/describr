@@ -15,9 +15,9 @@ import {
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Pressable,
   StyleSheet
 } from 'react-native';
+
 type AlbumThumb = Album & { thumbnail: Asset };
 
 export default function App() {
@@ -68,20 +68,22 @@ export default function App() {
 
 const AlbumEntry = ({ album }: { album: AlbumThumb }) => {
   return (
-    <Link key={album.id} href={{ pathname: `/album/[id]`, params: { id: album.id, title: album.title, count: album.assetCount } }} asChild>
-      <Pressable style={styles.albumContainer} >
-        <Image
-          source={{ uri: album.thumbnail?.uri }}
-          style={{ width: "100%", aspectRatio: 1 }}
-          autoplay={false}
-        />
-        <ThemedText type='defaultSemiBold' numberOfLines={1}>
-          {album.title}
-        </ThemedText>
-        <ThemedText type='small' numberOfLines={1} style={{ opacity: 0.7 }}>
-          {album.assetCount}
-        </ThemedText>
-      </Pressable>
+    <Link
+      key={album.id}
+      href={{ pathname: `/album/[id]`, params: { id: album.id, title: album.title, count: album.assetCount } }}
+      style={styles.albumContainer}
+    >
+      <Image
+        source={{ uri: album.thumbnail?.uri }}
+        style={{ width: "100%", aspectRatio: 1 }}
+        autoplay={false}
+      />
+      <ThemedText type='defaultSemiBold' numberOfLines={1}>
+        {album.title}
+      </ThemedText>
+      <ThemedText type='small' numberOfLines={1} style={{ opacity: 0.7 }}>
+        {album.assetCount}
+      </ThemedText>
     </Link >
   );
 }

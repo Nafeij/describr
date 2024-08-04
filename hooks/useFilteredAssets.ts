@@ -53,16 +53,13 @@ export function useFilteredAssets({
 
     useEffect(() => {
         setLoading(true);
-        (async () => {
-            const filtered = filter(assets);
-            if (filtered.length > 0 || assets.length < 1) {
-                setFiltered(filtered);
-                return;
-            }
-            setFiltered([]);
-            await getPage();
-        })();
-        setLoading(false);
+        const filtered = filter(assets);
+		if (filtered.length > 0 || assets.length < 1) {
+			setFiltered(filtered);
+			return;
+		}
+		setFiltered([]);
+		getPage().then(() => setLoading(false));
     }, [postFilter]);
 
     return { assets, filtered, loading, getPage, ...selectorOps };
