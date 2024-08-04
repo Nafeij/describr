@@ -1,5 +1,5 @@
 import ActionDrawer from "@/components/ActionDrawer";
-import AssetsList from "@/components/AssetsList";
+import AssetsList from "@/components/lists/AssetsList";
 import { SelectorHeader } from "@/components/Selector";
 import { ThemedText } from "@/components/ThemedText";
 import { useFilteredAssets } from "@/hooks/useFilteredAssets";
@@ -11,7 +11,7 @@ import { View } from "react-native";
 export default function AlbumView() {
     const { id, title, count } = useLocalSearchParams<{ id: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-    const { filtered, loading, getPage, toggleSelected, toggleAll, clear } = useFilteredAssets({
+    const { filtered, loading, getPage, toggleSelected, toggleAll, clearSelection, refetch } = useFilteredAssets({
         preFilters: {
             album: id,
             mediaType: ['photo', 'video'],
@@ -26,7 +26,7 @@ export default function AlbumView() {
                 numTotal={filtered.length}
                 numSelected={filtered.filter(e => e.selected).length}
                 toggleAll={toggleAll}
-                clear={clear}
+                clear={clearSelection}
             /> : <Stack.Screen options={{
                 headerTitle: () => (
                     <View>
@@ -52,7 +52,7 @@ export default function AlbumView() {
                 getPage={getPage}
                 toggleSelected={toggleSelected}
             />
-            <ActionDrawer filtered={filtered} />
+            <ActionDrawer selected={filtered.filter(e => e.selected)} refetch={refetch} />
         </>
     );
 }

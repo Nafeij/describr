@@ -9,8 +9,8 @@ import { Asset } from "expo-media-library";
 import { router } from "expo-router";
 import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
-import { ThemedRefreshControl } from "./ThemedRefreshControls";
-import { ThemedView } from "./ThemedView";
+import { ThemedRefreshControl } from "../ThemedRefreshControls";
+import { ThemedView } from "../ThemedView";
 
 
 export default function AssetsList({

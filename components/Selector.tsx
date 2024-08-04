@@ -65,15 +65,6 @@ export const SelectAllButton = ({
     </Pressable>
 }
 
-// TODO
-// export function SelectorFooter() {
-//     const [color, backgroundColor] = useThemeColor({}, ['text', 'field']);
-//     const {filtered, clear} = useFilteredAssetContext();
-//     const {intent, isMatchingType, setResult} = useIntentContext();
-//     const hasSelected = filtered.some(e => e.selected);
-
-// }
-
 const styles = StyleSheet.create({
     headerRightContainer: {
         paddingVertical: 8,

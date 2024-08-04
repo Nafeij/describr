@@ -2,8 +2,8 @@ import { AlbumThumb } from "@/hooks/useAlbumWithThumbs";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet } from "react-native";
-import { ThemedRefreshControl } from "./ThemedRefreshControls";
-import { ThemedText } from "./ThemedText";
+import { ThemedRefreshControl } from "../ThemedRefreshControls";
+import { ThemedText } from "../ThemedText";
 
 export default function AlbumsList({
     refreshing,
@@ -49,7 +49,7 @@ const AlbumEntry = ({ album, onPress }: {
                 {album.title}
             </ThemedText>
             <ThemedText type='small' numberOfLines={1} style={{ opacity: 0.7 }}>
-                {album.assetCount}
+                {`${album.assetCount} items`}
             </ThemedText>
         </Pressable >
     );

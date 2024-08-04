@@ -1,4 +1,4 @@
-import AssetsList from "@/components/AssetsList";
+import AssetsList from "@/components/lists/AssetsList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
@@ -7,10 +7,10 @@ import { useEffect } from "react";
 
 export default function Search() {
     const [color] = useThemeColor({}, ['icon']);
-    const { assets, filtered, loading, getPage, toggleSelected, clear } = useFilteredAssetContext();
+    const { assets, filtered, loading, getPage, toggleSelected, clearSelection } = useFilteredAssetContext();
     const hasSelected = filtered.some(e => e.selected !== undefined);
     const numSelected = filtered.filter(e => e.selected).length;
-    useEffect(() => (clear), []);
+    useEffect(() => (clearSelection), []);
     return (
         <ThemedView style={{ flex: 1 }}>
             <ThemedText type="defaultSemiBold" style={{ padding: 8, paddingTop: 0, color }}>{

@@ -1,5 +1,5 @@
 
-import AlbumsList from '@/components/AlbumsList';
+import AlbumsList from '@/components/lists/AlbumsList';
 import { ThemedView } from '@/components/ThemedView';
 import useAlbumWithThumbs from '@/hooks/useAlbumWithThumbs';
 import { useManagerPermissions } from '@/hooks/useManagerPermissions';

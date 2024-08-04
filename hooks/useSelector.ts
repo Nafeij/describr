@@ -21,9 +21,9 @@ export function useSelectorState<T extends IDable>() {
     setAll((prev) => prev.map((item) => ({ ...item, selected: value })));
   }, [all]);
 
-  const clear = useCallback(() => {
+  const clearSelection = useCallback(() => {
     setAll((prev) => prev.map((item) => ({ ...item, selected: undefined })));
   }, []);
 
-  return [all, setAll, { toggleSelected, toggleAll, clear }] as const;
+  return [all, setAll, { toggleSelected, toggleAll, clearSelection }] as const;
 }

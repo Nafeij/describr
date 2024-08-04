@@ -8,7 +8,7 @@ import { BackHandler, StyleProp, StyleSheet, TextInput, View, ViewStyle } from "
 
 export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle> }) => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
-    const { filtered, clear: clearSelector } = useFilteredAssetContext();
+    const { filtered, clearSelection } = useFilteredAssetContext();
     const [query, setQuery] = useState(_query);
     const debouncedSetParams = useDebounce({
         callback: () => {
@@ -23,7 +23,7 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
 
     const handleBack = useCallback(() => {
         if (filtered.some(e => e.selected !== undefined)) {
-            clearSelector();
+            clearSelection();
             return true;
         }
         if (query || ref.current?.isFocused()) {

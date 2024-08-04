@@ -51,6 +51,14 @@ export function useFilteredAssets({
         setLoading(false);
     }, [loading, lastPage, assets, preFilters, filter]);
 
+	const refetch = useCallback(() => {
+		setLastPage(undefined);
+		setAssets([]);
+		setFiltered([]);
+        setLoading(true);
+		getPage().then(() => setLoading(false));
+	}, []);
+
     useEffect(() => {
         setLoading(true);
         const filtered = filter(assets);
@@ -63,7 +71,7 @@ export function useFilteredAssets({
 		getPage().then(() => setLoading(false));
     }, [postFilter]);
 
-    return { assets, filtered, loading, getPage, ...selectorOps };
+    return { assets, filtered, loading, getPage, refetch, ...selectorOps };
 }
 
 export const FilteredAssetContext = createContext<ReturnType<typeof useFilteredAssets>>(null as any);

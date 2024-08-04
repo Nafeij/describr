@@ -1,20 +1,23 @@
+import { AlbumThumb } from "@/hooks/useAlbumWithThumbs";
 import { useIntentContext } from "@/hooks/useIntentContext";
-import { Selectable } from "@/hooks/useSelector";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { AssetInfo } from "expo-media-library";
+import { addAssetsToAlbumAsync, AssetInfo, deleteAssetsAsync } from "expo-media-library";
 import { RefAttributes, useEffect, useState } from "react";
 import { Pressable, PressableProps, StyleSheet, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import AlbumModal from "./AlbumModal";
+import AlbumModal from "./modals/AlbumModal";
+import ConfirmModal from "./modals/ConfirmModal";
 import { ThemedText } from "./ThemedText";
 
 export default function ActionDrawer({
-    filtered,
+    selected,
+    refetch,
 }: {
-    filtered: (AssetInfo & Selectable)[];
+    selected: AssetInfo[];
+    refetch: () => void;
 }) {
     const [backgroundColor] = useThemeColor({}, ['background']);
     const { intent, setResult, isMatchingType } = useIntentContext();
@@ -23,19 +26,53 @@ export default function ActionDrawer({
     const [loading, setLoading] = useState({
         return: false, moveTo: false, copyTo: false, delete: false,
     });
-    const [showModal, setShowModal] = useState(false);
+    const [modalAction, dispatchModal] = useState<((album: AlbumThumb) => void) | undefined>(undefined);
+    const [modalConfirm, dispatchConfirm] = useState<{ title: string, onConfirm: () => Promise<void> } | undefined>(undefined);
 
     const setAllResult = () => {
         setLoading(loading => ({ ...loading, return: true }));
         setResult({
             isOK: true,
-            uris: filtered.filter(e => e.selected && isMatchingType(e.uri)).map(e => e.uri),
+            uris: selected.filter(e => isMatchingType(e.uri)).map(e => e.uri),
         }).then(() => setLoading(loading => ({ ...loading, return: false })));
     }
 
+    const withConfirm = (title: string, onConfirm: () => Promise<void>) => (
+        () => dispatchConfirm({ title, onConfirm: async () => {
+            await onConfirm()
+            dispatchConfirm(undefined);
+        } })
+    )
+
+    const addFiles = (copy: boolean) => (
+        async (album: AlbumThumb) => {
+            setLoading(loading => ({ ...loading, moveTo: !copy, copyTo: copy }));
+            // console.log("Adding files to album", selected, album.id, copy);
+            try {
+                await addAssetsToAlbumAsync(selected, album.id, copy);
+                refetch();
+            } catch (error) {
+                console.error("Error adding files to album", error);
+            }
+            setLoading(loading => ({ ...loading, moveTo: false, copyTo: false }));
+            dispatchModal(undefined);
+        }
+    )
+
+    const deleteFiles = async () => {
+        setLoading(loading => ({ ...loading, delete: true }));
+        try {
+            await deleteAssetsAsync(selected);
+            refetch();
+        } catch (error) {
+            console.error("Error deleting files", error);
+        }
+        setLoading(loading => ({ ...loading, delete: false }));
+    }
+
     useEffect(() => {
-        drawerHeight.value = filtered.some(e => e.selected) ? 64 : 0;
-    }, [filtered]);
+        drawerHeight.value = selected.length ? 64 : 0;
+    }, [selected]);
 
     const drawerAnimStyle = useAnimatedStyle(() => ({
         height: withTiming(drawerHeight.value),
@@ -50,14 +87,25 @@ export default function ActionDrawer({
                 >
                     {
                         needContent &&
-                        <DrawerButton icon="upload" text="Return" onPress={setAllResult} disabled={loading.return} />
+                        <DrawerButton icon="upload" text="Return" disabled={loading.return} onPress={setAllResult} />
                     }
-                    <DrawerButton icon="folder" text="Move To" onPress={() => setShowModal(true)} />
-                    <DrawerButton icon="copy" text="Copy To" />
-                    <DrawerButton icon="trash" text="Delete" />
+                    <DrawerButton icon="folder" text="Move To" disabled={loading.moveTo} onPress={() => dispatchModal(() => addFiles(false))} />
+                    <DrawerButton icon="copy" text="Copy To" disabled={loading.copyTo} onPress={() => dispatchModal(() => addFiles(true))} />
+                    <DrawerButton icon="trash" text="Delete" disabled={loading.delete}
+                        onPress={() => withConfirm( `Delete ${selected.length} files?`, deleteFiles)}
+                    />
                 </LinearGradient>
             </Animated.View>
-            <AlbumModal isVisible={showModal} title={"Test"} onClose={() => setShowModal(false)} />
+            <AlbumModal
+                title={"Test"}
+                onSelect={modalAction}
+                onClose={() => dispatchModal(undefined)}
+            />
+            <ConfirmModal
+                title={modalConfirm?.title || ""}
+                onConfirm={modalConfirm?.onConfirm}
+                onClose={() => dispatchConfirm(undefined)}
+            />
         </>
     );
 }
