@@ -1,5 +1,5 @@
 import ActionDrawer from "@/components/ActionDrawer";
-import AlbumList from "@/components/AlbumList";
+import AssetsList from "@/components/AssetsList";
 import { SelectorHeader } from "@/components/Selector";
 import { ThemedText } from "@/components/ThemedText";
 import { useFilteredAssets } from "@/hooks/useFilteredAssets";
@@ -46,7 +46,7 @@ export default function AlbumView() {
                         />
                     </Link>,
             }} />}
-            <AlbumList
+            <AssetsList
                 filtered={filtered}
                 loading={loading}
                 getPage={getPage}

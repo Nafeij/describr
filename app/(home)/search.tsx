@@ -1,4 +1,4 @@
-import AlbumList from "@/components/AlbumList";
+import AssetsList from "@/components/AssetsList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
@@ -18,7 +18,7 @@ export default function Search() {
                     : numSelected ? `${numSelected} selected`
                         : "Select item"
             }</ThemedText>
-            <AlbumList
+            <AssetsList
                 filtered={filtered}
                 loading={loading}
                 getPage={getPage}

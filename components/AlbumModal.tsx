@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import useAlbumWithThumbs from "@/hooks/useAlbumWithThumbs";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Modal, Pressable, StyleSheet } from "react-native";
 
@@ -8,6 +9,7 @@ export default function AlbumModal({ title, isVisible, onClose }: {
     isVisible?: boolean,
     onClose?: (uri?: string) => void,
 }) {
+    const [albums, fetchAlbums] = useAlbumWithThumbs();
     const [backgroundColor] = useThemeColor({}, ['field']);
 
     return (

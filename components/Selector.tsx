@@ -3,8 +3,6 @@ import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { ThemedText } from "./ThemedText";
-import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
-import { useIntentContext } from "@/hooks/useIntentContext";
 
 export function SelectorHeader({
     numTotal,

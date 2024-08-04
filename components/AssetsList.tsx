@@ -13,7 +13,7 @@ import { ThemedRefreshControl } from "./ThemedRefreshControls";
 import { ThemedView } from "./ThemedView";
 
 
-export default function AlbumList({
+export default function AssetsList({
     filtered, loading, getPage, toggleSelected,
 }: {
     filtered: (Asset & Selectable)[];
