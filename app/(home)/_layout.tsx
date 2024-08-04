@@ -29,7 +29,7 @@ export default function HomeLayout() {
       album: id,
       mediaType: ['photo', 'video'],
       first: 256,
-      sortBy: 'creationTime',
+      sortBy: ['modificationTime', 'creationTime'],
     },
     postFilter,
     fetchInfo: true,

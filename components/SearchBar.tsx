@@ -1,5 +1,4 @@
 import { useDebounce } from "@/hooks/useDebounce";
-import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
@@ -8,7 +7,6 @@ import { BackHandler, StyleProp, StyleSheet, TextInput, View, ViewStyle } from "
 
 export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle> }) => {
     const { query: _query } = useLocalSearchParams<{ query: string }>();
-    const { filtered, clearSelection } = useFilteredAssetContext();
     const [query, setQuery] = useState(_query);
     const debouncedSetParams = useDebounce({
         callback: () => {
@@ -22,17 +20,13 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     const [color, mutedColor, backgroundColor] = useThemeColor({}, ['text', 'icon', 'field']);
 
     const handleBack = useCallback(() => {
-        if (filtered.some(e => e.selected !== undefined)) {
-            clearSelection();
-            return true;
-        }
         if (query || ref.current?.isFocused()) {
             setQuery("");
             ref.current?.blur();
             return true;
         }
         return false;
-    }, [filtered, query]);
+    }, [query]);
 
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", handleBack);

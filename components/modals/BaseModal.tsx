@@ -1,20 +1,19 @@
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { PropsWithChildren } from "react";
-import { Modal, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { Modal, ModalProps, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 
-export default function BaseModal({ isVisible = false, style, children, onClose }: {
+export default function BaseModal({ isVisible = false, style, children, onClose, ...rest }: {
     isVisible?: boolean,
     style?: StyleProp<ViewStyle>,
     onClose: () => void,
-} & PropsWithChildren) {
+} & ModalProps) {
     const [backgroundColor] = useThemeColor({}, ['field']);
     return (
         <Modal
-            animationType="slide"
             transparent={true}
             visible={isVisible}
             onRequestClose={onClose}
+            { ...rest }
         >
             <Pressable style={{ flex: 1 }} onPress={onClose} >
                 <ThemedView style={[styles.modalContent, styles.shadow, { backgroundColor }, style]}>

@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   link: {
     lineHeight: 26,
     fontSize: 16,
-    color: '#0a7ea4',
+    color: '#1290b9',
+    fontWeight: '600',
   },
 });

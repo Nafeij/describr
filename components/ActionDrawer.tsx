@@ -1,4 +1,4 @@
-import { AlbumThumb } from "@/hooks/useAlbumWithThumbs";
+import { AlbumThumb, useAlbumsContext } from "@/hooks/useAlbumWithThumbs";
 import { useIntentContext } from "@/hooks/useIntentContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
@@ -17,10 +17,11 @@ export default function ActionDrawer({
     refetch,
 }: {
     selected: AssetInfo[];
-    refetch: () => void;
+    refetch: () => Promise<void>;
 }) {
     const [backgroundColor] = useThemeColor({}, ['background']);
     const { intent, setResult, isMatchingType } = useIntentContext();
+    const [_, fetchAlbums] = useAlbumsContext();
     const needContent = intent?.action === ActivityAction.GET_CONTENT;
     const drawerHeight = useSharedValue(0);
     const [loading, setLoading] = useState({
@@ -38,19 +39,22 @@ export default function ActionDrawer({
     }
 
     const withConfirm = (title: string, onConfirm: () => Promise<void>) => (
-        () => dispatchConfirm({ title, onConfirm: async () => {
-            await onConfirm()
-            dispatchConfirm(undefined);
-        } })
+        () => dispatchConfirm({
+            title, onConfirm: async () => {
+                await onConfirm()
+                dispatchConfirm(undefined);
+            }
+        })
     )
 
     const addFiles = (copy: boolean) => (
         async (album: AlbumThumb) => {
             setLoading(loading => ({ ...loading, moveTo: !copy, copyTo: copy }));
-            // console.log("Adding files to album", selected, album.id, copy);
+            // TODO: Allow moving to folders in root directory
             try {
-                await addAssetsToAlbumAsync(selected, album.id, copy);
-                refetch();
+                if (await addAssetsToAlbumAsync(selected, album.id, copy)) {
+                    refetch().then(fetchAlbums);
+                }
             } catch (error) {
                 console.error("Error adding files to album", error);
             }
@@ -62,8 +66,9 @@ export default function ActionDrawer({
     const deleteFiles = async () => {
         setLoading(loading => ({ ...loading, delete: true }));
         try {
-            await deleteAssetsAsync(selected);
-            refetch();
+            if (await deleteAssetsAsync(selected)) {
+                refetch().then(fetchAlbums);
+            }
         } catch (error) {
             console.error("Error deleting files", error);
         }
@@ -92,7 +97,7 @@ export default function ActionDrawer({
                     <DrawerButton icon="folder" text="Move To" disabled={loading.moveTo} onPress={() => dispatchModal(() => addFiles(false))} />
                     <DrawerButton icon="copy" text="Copy To" disabled={loading.copyTo} onPress={() => dispatchModal(() => addFiles(true))} />
                     <DrawerButton icon="trash" text="Delete" disabled={loading.delete}
-                        onPress={() => withConfirm( `Delete ${selected.length} files?`, deleteFiles)}
+                        onPress={withConfirm(`Delete ${selected.length} files?`, deleteFiles)}
                     />
                 </LinearGradient>
             </Animated.View>

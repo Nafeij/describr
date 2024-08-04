@@ -1,5 +1,5 @@
 import { Album, Asset, getAlbumsAsync, getAssetsAsync } from "expo-media-library";
-import { useCallback, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 export type AlbumThumb = Album & { thumbnail: Asset };
 
@@ -23,3 +23,11 @@ export default function useAlbumWithThumbs() {
 
     return [ albums, fetchAlbums ] as const;
 }
+
+export const AlbumsContext = createContext<ReturnType<typeof useAlbumWithThumbs>>(null as any);
+
+export const AlbumsContextProvider = AlbumsContext.Provider;
+
+export const useAlbumsContext = () => {
+    return useContext(AlbumsContext);
+};

@@ -1,4 +1,5 @@
 import { ThemedView } from '@/components/ThemedView';
+import useAlbumWithThumbs, { AlbumsContextProvider } from '@/hooks/useAlbumWithThumbs';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { IntentProvider, useIntent } from '@/hooks/useIntentContext';
 import { SettingsProvider, useSettings } from '@/hooks/useSettingsContext';
@@ -16,6 +17,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const intent = useIntent();
   const settings = useSettings();
+  const albums = useAlbumWithThumbs();
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -35,6 +37,7 @@ export default function RootLayout() {
     <IntentProvider value={intent}>
       <SettingsProvider value={settings}>
         <ThemeProvider value={theme}>
+          <AlbumsContextProvider value={albums}>
           <ThemedView style={{ flex: 1 }}>
             <GestureHandlerRootView>
               <Stack screenOptions={{
@@ -47,6 +50,7 @@ export default function RootLayout() {
               </Stack>
             </GestureHandlerRootView>
           </ThemedView>
+          </AlbumsContextProvider>
         </ThemeProvider>
       </SettingsProvider>
     </IntentProvider >

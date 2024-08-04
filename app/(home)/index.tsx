@@ -1,7 +1,7 @@
 
 import AlbumsList from '@/components/lists/AlbumsList';
 import { ThemedView } from '@/components/ThemedView';
-import useAlbumWithThumbs from '@/hooks/useAlbumWithThumbs';
+import { useAlbumsContext } from '@/hooks/useAlbumWithThumbs';
 import { useManagerPermissions } from '@/hooks/useManagerPermissions';
 import {
 	Album,
@@ -15,7 +15,7 @@ type AlbumThumb = Album & { thumbnail: Asset };
 
 export default function App() {
 	const [refreshing, setRefreshing] = useState(true);
-	const [albums, fetchAlbums] = useAlbumWithThumbs();
+	const [albums, fetchAlbums] = useAlbumsContext();
 	const [mediaPermission, requestMediaPerm] = usePermissions();
 	const [managerPermission, requestManagerPerm] = useManagerPermissions();
 

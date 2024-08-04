@@ -1,6 +1,7 @@
 import { Asset, AssetInfo, AssetsOptions, getAssetInfoAsync, getAssetsAsync } from "expo-media-library";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSelectorState } from "./useSelector";
+import { BackHandler } from "react-native";
 
 export function useFilteredAssets({
     preFilters,
@@ -11,13 +12,14 @@ export function useFilteredAssets({
     postFilter?: (_: AssetInfo) => boolean,
     fetchInfo?: boolean
 }) {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [lastPage, setLastPage] = useState<{
         endCursor: string;
         hasNextPage: boolean;
     }>();
     const [assets, setAssets] = useState<AssetInfo[]>([]);
     const [filtered, setFiltered, selectorOps] = useSelectorState<Asset>();
+    const hasSelected = filtered.some(e => e.selected !== undefined);
 
     const filter = useCallback((newAssets: AssetInfo[]) => {
         if (postFilter) {
@@ -27,7 +29,9 @@ export function useFilteredAssets({
     }, [postFilter]);
 
     const getPage = useCallback(async () => {
-        if (loading || lastPage?.hasNextPage === false) return;
+        if (loading || lastPage?.hasNextPage === false) {
+            return;
+        }
         setLoading(true);
         let newAssets: AssetInfo[] = assets;
         let cursor = lastPage?.endCursor;
@@ -36,8 +40,7 @@ export function useFilteredAssets({
             cursor = fetchedPage.endCursor;
             let fetchedAssets: AssetInfo[] = fetchedPage.assets;
             if (fetchInfo) {
-                fetchedAssets = await Promise.all(fetchedAssets.map((asset) => getAssetInfoAsync(asset.id)
-                ));
+                fetchedAssets = await Promise.all(fetchedAssets.map((asset) => getAssetInfoAsync(asset.id)));
             }
             newAssets = newAssets.concat(fetchedAssets);
             const newFiltered = filter(newAssets);
@@ -51,25 +54,33 @@ export function useFilteredAssets({
         setLoading(false);
     }, [loading, lastPage, assets, preFilters, filter]);
 
-	const refetch = useCallback(() => {
+	const refetch = useCallback(async () => {
 		setLastPage(undefined);
 		setAssets([]);
 		setFiltered([]);
-        setLoading(true);
-		getPage().then(() => setLoading(false));
+		await getPage();
 	}, []);
 
     useEffect(() => {
-        setLoading(true);
         const filtered = filter(assets);
 		if (filtered.length > 0 || assets.length < 1) {
 			setFiltered(filtered);
-			setLoading(false);
 			return;
 		}
 		setFiltered([]);
-		getPage().then(() => setLoading(false));
+		getPage();
     }, [postFilter]);
+
+
+    useEffect(() => {
+        if (hasSelected) {
+            const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+                selectorOps.clearSelection();
+                return true;
+            });
+            return () => sub.remove();
+        }
+    }, [hasSelected]);
 
     return { assets, filtered, loading, getPage, refetch, ...selectorOps };
 }

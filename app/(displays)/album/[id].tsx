@@ -16,7 +16,7 @@ export default function AlbumView() {
             album: id,
             mediaType: ['photo', 'video'],
             first: 128,
-            sortBy: ['creationTime', 'modificationTime'],
+            sortBy: ['modificationTime', 'creationTime'],
         },
     });
     const hasSelected = filtered.some(e => e.selected !== undefined);
