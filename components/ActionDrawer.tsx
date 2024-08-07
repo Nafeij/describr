@@ -102,7 +102,7 @@ export default function ActionDrawer({
                 </LinearGradient>
             </Animated.View>
             <AlbumModal
-                title={"Test"}
+                title={loading.copyTo ? "Copy to" : "Move to"}
                 onSelect={modalAction}
                 onClose={() => dispatchModal(undefined)}
             />
