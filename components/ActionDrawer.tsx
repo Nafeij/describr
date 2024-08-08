@@ -27,7 +27,7 @@ export default function ActionDrawer({
     const [loading, setLoading] = useState({
         return: false, moveTo: false, copyTo: false, delete: false,
     });
-    const [modalAction, dispatchModal] = useState<((album: AlbumThumb) => void) | undefined>(undefined);
+    const [modalAction, dispatchModal] = useState<{ title: string, onSelect: (album: AlbumThumb) => Promise<void> } | undefined>(undefined);
     const [modalConfirm, dispatchConfirm] = useState<{ title: string, onConfirm: () => Promise<void> } | undefined>(undefined);
 
     const setAllResult = () => {
@@ -37,15 +37,6 @@ export default function ActionDrawer({
             uris: selected.filter(e => isMatchingType(e.uri)).map(e => e.uri),
         }).then(() => setLoading(loading => ({ ...loading, return: false })));
     }
-
-    const withConfirm = (title: string, onConfirm: () => Promise<void>) => (
-        () => dispatchConfirm({
-            title, onConfirm: async () => {
-                await onConfirm()
-                dispatchConfirm(undefined);
-            }
-        })
-    )
 
     const addFiles = (copy: boolean) => (
         async (album: AlbumThumb) => {
@@ -94,16 +85,22 @@ export default function ActionDrawer({
                         needContent &&
                         <DrawerButton icon="upload" text="Return" disabled={loading.return} onPress={setAllResult} />
                     }
-                    <DrawerButton icon="folder" text="Move To" disabled={loading.moveTo} onPress={() => dispatchModal(() => addFiles(false))} />
-                    <DrawerButton icon="copy" text="Copy To" disabled={loading.copyTo} onPress={() => dispatchModal(() => addFiles(true))} />
+                    <DrawerButton icon="folder" text="Move To" disabled={loading.moveTo} onPress={() => dispatchModal({ title: "Move To", onSelect: addFiles(false) })} />
+                    <DrawerButton icon="copy" text="Copy To" disabled={loading.copyTo} onPress={() => dispatchModal({ title: "Copy To", onSelect: addFiles(true) })} />
                     <DrawerButton icon="trash" text="Delete" disabled={loading.delete}
-                        onPress={withConfirm(`Delete ${selected.length} files?`, deleteFiles)}
+                        onPress={() => dispatchConfirm({
+                            title: `Delete ${selected.length} files?`,
+                            onConfirm: async () => {
+                                await deleteFiles();
+                                dispatchConfirm(undefined);
+                            }
+                        })}
                     />
                 </LinearGradient>
             </Animated.View>
             <AlbumModal
-                title={loading.copyTo ? "Copy to" : "Move to"}
-                onSelect={modalAction}
+                title={modalAction?.title || ""}
+                onSelect={modalAction?.onSelect}
                 onClose={() => dispatchModal(undefined)}
             />
             <ConfirmModal
