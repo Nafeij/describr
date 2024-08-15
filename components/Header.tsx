@@ -16,7 +16,7 @@ const ACTIVE_WIDTHS = {
 
 export default function Header() {
     const [color] = useThemeColor({}, ['text']);
-    const { filtered, toggleAll } = useFilteredAssetContext();
+    const { filtered, toggleAll } = useFilteredAssetContext().search;
     const path = usePathname();
     const settingWidth = useSharedValue(0);
     const selectorWidth = useSharedValue(0);
@@ -44,10 +44,10 @@ export default function Header() {
         <View style={styles.container}>
             <SearchBar styles={{ zIndex: 1 }} />
             <Animated.View style={[selectorAnimStyle, styles.buttonContainer]}>
-                <SelectAllButton isAllSelected={filtered.every(e => e.selected)} toggleAll={toggleAll} style={styles.button}/>
+                <SelectAllButton isAllSelected={filtered.every(e => e.selected)} toggleAll={toggleAll} style={styles.button} />
             </Animated.View>
             <Animated.View style={[settingAnimStyle, styles.buttonContainer]}>
-                <Link href="/settings" push style={[styles.button, {marginRight: 6}]}>
+                <Link href="/settings" push style={[styles.button, { marginRight: 6 }]}>
                     <Feather name="settings" size={20} color={color} />
                 </Link>
             </Animated.View>

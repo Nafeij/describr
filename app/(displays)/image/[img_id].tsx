@@ -1,6 +1,5 @@
 import TagEditor from "@/components/TagEditor";
 import { ThemedView } from "@/components/ThemedView";
-import { useImageViewContext } from "@/hooks/useImageViewStates";
 import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -10,11 +9,8 @@ import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanima
 
 
 export default function ImageView() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { img_id: id } = useLocalSearchParams<{ img_id: string }>();
     const [asset, setAsset] = useState<AssetInfo>();
-    const { images, getPage } = useImageViewContext();
-
-    console.log(images?.[0]?.uri ?? 'no first image');
 
     useEffect(() => {
         if (!id) return;

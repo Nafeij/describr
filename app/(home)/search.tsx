@@ -6,7 +6,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function Search() {
     const [color] = useThemeColor({}, ['icon']);
-    const { assets, filtered, loading, getPage, toggleSelected } = useFilteredAssetContext();
+    const { assets, filtered, loading, getPage, toggleSelected } = useFilteredAssetContext().search;
     const hasSelected = filtered.some(e => e.selected !== undefined);
     const numSelected = filtered.filter(e => e.selected).length;
     return (

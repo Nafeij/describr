@@ -2,23 +2,16 @@ import ActionDrawer from "@/components/ActionDrawer";
 import AssetsList from "@/components/lists/AssetsList";
 import { SelectorHeader } from "@/components/Selector";
 import { ThemedText } from "@/components/ThemedText";
-import { useFilteredAssets } from "@/hooks/useFilteredAssets";
+import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { Link, Stack, useGlobalSearchParams } from "expo-router";
 import { View } from "react-native";
 
 export default function AlbumView() {
-    const { id, title, count } = useLocalSearchParams<{ id: string, title?: string, count?: string }>();
+    const { id, title, count } = useGlobalSearchParams<{ id?: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-    const { filtered, loading, getPage, toggleSelected, toggleAll, clearSelection, refetch } = useFilteredAssets({
-        preFilters: {
-            album: id,
-            mediaType: ['photo', 'video'],
-            first: 128,
-            sortBy: ['modificationTime', 'creationTime'],
-        },
-    });
+    const { filtered, loading, getPage, toggleSelected, toggleAll, clearSelection, refetch } = useFilteredAssetContext().album;
     const hasSelected = filtered.some(e => e.selected !== undefined);
     return (
         <>
