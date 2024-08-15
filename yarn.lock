@@ -6845,10 +6845,10 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-awesome-gallery@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-native-awesome-gallery/-/react-native-awesome-gallery-0.4.0.tgz#87b57a59d50874161c7b6adb033048fa24bb0bd3"
-  integrity sha512-FGLwSfow5bEhXjvFDxaYWCXXY5vuwAGZXl57e87CiXha1seq/i5ptwBJ1CTIRPmh7vnUxq3Pi5hOXCTe2/k9YQ==
+react-native-awesome-gallery@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/react-native-awesome-gallery/-/react-native-awesome-gallery-0.4.2.tgz#fbf3e5e890b5e8bdecf169efec994c30ce1de82d"
+  integrity sha512-r7wU5a1P4bZjqDAqICUeGBXumBJj1E78wT9x177syyfmy4sv49z0l9df/WDD/NZeanXPBR9GqfHpp7o9Dibkiw==
   dependencies:
     react-native-redash "^16.0.8"
 

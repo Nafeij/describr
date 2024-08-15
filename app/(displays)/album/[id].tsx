@@ -44,6 +44,7 @@ export default function AlbumView() {
                 loading={loading}
                 getPage={getPage}
                 toggleSelected={toggleSelected}
+                from="album"
             />
             <ActionDrawer selected={filtered.filter(e => e.selected)} refetch={refetch} />
         </>

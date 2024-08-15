@@ -13,7 +13,7 @@ export default function AlbumLayout() {
       },
     }}>
       <Stack.Screen name="album/[id]" />
-      <Stack.Screen name="image/[img_id]" />
+      <Stack.Screen name="image/[index]" />
     </Stack>
   );
 }

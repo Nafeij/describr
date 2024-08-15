@@ -11,32 +11,28 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedRefreshControl } from "../ThemedRefreshControls";
 import { ThemedView } from "../ThemedView";
-import { useImageViewContext } from "@/hooks/useImageViewStates";
 
 
 export default function AssetsList({
-    filtered, loading, getPage, toggleSelected,
+    filtered, loading, getPage, toggleSelected, from
 }: {
     filtered: (Asset & Selectable)[];
     loading: boolean;
     getPage: () => void;
     toggleSelected: (id: string) => void;
+    from: "search" | "album";
 }) {
     const intentContext = useIntentContext();
-    const { setImages, setGetPage } = useImageViewContext();
-    const onNavImage = () => {
-        setImages(filtered);
-        setGetPage(getPage);
-    };
     return (
         <ThemedView style={{ flex: 1 }}>
             <FlashList
                 data={filtered}
-                renderItem={({ item }) =>
+                renderItem={({ item, index }) =>
                     <AssetEntry {...item}
                         toggleSelected={toggleSelected}
                         intentContext={intentContext}
-                        onNavImage={onNavImage}
+                        index={index}
+                        from={from}
                     />}
                 keyExtractor={(item) => item.id}
                 numColumns={4}
@@ -52,14 +48,15 @@ export default function AssetsList({
 }
 
 function AssetEntry({
-    uri, id, selected, toggleSelected, intentContext, onNavImage,
+    uri, id, index, selected, toggleSelected, intentContext, from
 }: {
     uri: string,
     id: string,
+    index: number,
     selected?: boolean,
     toggleSelected: (id: string) => void,
     intentContext: ReturnType<typeof useIntentContext>;
-    onNavImage?: () => void;
+    from: "search" | "album";
 }) {
     // const { intent, setResult, isMatchingType } = useIntentManager();
     const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
@@ -81,8 +78,9 @@ function AssetEntry({
                     setResult({ isOK: true, uris: [uri] });
                     return;
                 }
-                onNavImage && onNavImage();
-                router.push(`/image/${id}`);
+                router.push({
+                    pathname: `/image/[index]`, params: { index, from }
+                });
             }}
         >
             <Image

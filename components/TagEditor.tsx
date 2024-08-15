@@ -107,6 +107,11 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         }
         generateTagsFromFile(asset.uri);
     }
+
+    // useEffect(() => {
+    //     setTags(oldTags)
+    // }, [oldTags]);
+
     useEffect(() => {
         tagsRef.current = tags;
     }, [tags]);
