@@ -1,6 +1,7 @@
 import { ThemedView } from '@/components/ThemedView';
 import useAlbumWithThumbs, { AlbumsContextProvider } from '@/hooks/useAlbumWithThumbs';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { ImageViewProvider, useImageViewStates } from '@/hooks/useImageViewStates';
 import { IntentProvider, useIntent } from '@/hooks/useIntentContext';
 import { SettingsProvider, useSettings } from '@/hooks/useSettingsContext';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -29,6 +30,8 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  const imageViewStates = useImageViewStates();
+
   if (!loaded) {
     return null;
   }
@@ -38,18 +41,20 @@ export default function RootLayout() {
       <SettingsProvider value={settings}>
         <ThemeProvider value={theme}>
           <AlbumsContextProvider value={albums}>
-          <ThemedView style={{ flex: 1 }}>
-            <GestureHandlerRootView>
-              <Stack screenOptions={{
-                headerShown: false,
-              }}>
-                <Stack.Screen name="(home)" />
-                <Stack.Screen name="(displays)" />
-                <Stack.Screen name="settings" />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-            </GestureHandlerRootView>
-          </ThemedView>
+            <ImageViewProvider value={imageViewStates}>
+              <ThemedView style={{ flex: 1 }}>
+                <GestureHandlerRootView>
+                  <Stack screenOptions={{
+                    headerShown: false,
+                  }}>
+                    <Stack.Screen name="(home)" />
+                    <Stack.Screen name="(displays)" />
+                    <Stack.Screen name="settings" />
+                    <Stack.Screen name="+not-found" />
+                  </Stack>
+                </GestureHandlerRootView>
+              </ThemedView>
+            </ImageViewProvider>
           </AlbumsContextProvider>
         </ThemeProvider>
       </SettingsProvider>

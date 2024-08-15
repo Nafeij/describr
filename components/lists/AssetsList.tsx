@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedRefreshControl } from "../ThemedRefreshControls";
 import { ThemedView } from "../ThemedView";
+import { useImageViewContext } from "@/hooks/useImageViewStates";
 
 
 export default function AssetsList({
@@ -22,11 +23,21 @@ export default function AssetsList({
     toggleSelected: (id: string) => void;
 }) {
     const intentContext = useIntentContext();
+    const { setImages, setGetPage } = useImageViewContext();
+    const onNavImage = () => {
+        setImages(filtered);
+        setGetPage(getPage);
+    };
     return (
         <ThemedView style={{ flex: 1 }}>
             <FlashList
                 data={filtered}
-                renderItem={({ item }) => <AssetEntry {...item} toggleSelected={toggleSelected} intentContext={intentContext} />}
+                renderItem={({ item }) =>
+                    <AssetEntry {...item}
+                        toggleSelected={toggleSelected}
+                        intentContext={intentContext}
+                        onNavImage={onNavImage}
+                    />}
                 keyExtractor={(item) => item.id}
                 numColumns={4}
                 estimatedItemSize={200}
@@ -41,13 +52,14 @@ export default function AssetsList({
 }
 
 function AssetEntry({
-    uri, id, selected, toggleSelected, intentContext,
+    uri, id, selected, toggleSelected, intentContext, onNavImage,
 }: {
     uri: string,
     id: string,
     selected?: boolean,
     toggleSelected: (id: string) => void,
     intentContext: ReturnType<typeof useIntentContext>;
+    onNavImage?: () => void;
 }) {
     // const { intent, setResult, isMatchingType } = useIntentManager();
     const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
@@ -69,6 +81,7 @@ function AssetEntry({
                     setResult({ isOK: true, uris: [uri] });
                     return;
                 }
+                onNavImage && onNavImage();
                 router.push(`/image/${id}`);
             }}
         >
@@ -84,7 +97,7 @@ function AssetEntry({
                 color={color}
                 style={[styles.check, {
                     backgroundColor: selected ? selectedColor : "transparent",
-                    padding: selected ? 2: 0,
+                    padding: selected ? 2 : 0,
                 }]}
             />}
         </Pressable>
