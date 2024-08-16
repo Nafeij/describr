@@ -3,7 +3,7 @@ import { readAsStringAsync } from "expo-file-system";
 import { useCallback, useState } from "react";
 import { lookup } from "react-native-mime-types";
 import EventSource from 'react-native-sse';
-import { useSettings, useSettingsContext } from "./useSettingsContext";
+import { useSettingsContext } from "./useSettingsContext";
 
 const build_prompt = (base64Data: string) => (
   {

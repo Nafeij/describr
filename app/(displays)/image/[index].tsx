@@ -1,21 +1,51 @@
 import TagEditor from "@/components/TagEditor";
+import { ThemedText } from "@/components/ThemedText";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Keyboard, KeyboardAvoidingView, StyleSheet, useWindowDimensions, View } from "react-native";
 import Gallery from "react-native-awesome-gallery";
 
 
 export default function ImageView() {
-    const { index, from } = useLocalSearchParams<{ index: string, from: "album" | "search" }>();
+    const { index: _index, from } = useLocalSearchParams<{ index: string, from: "album" | "search" }>();
     const filteredAssetGroup = useFilteredAssetContext();
     const { filtered, getPage } = filteredAssetGroup[from];
+    const [index, setIndex] = useState(parseInt(_index));
     const [asset, setAsset] = useState<AssetInfo>();
+    const windowDimensions = useWindowDimensions();
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-    useEffect(() => {
-        getAssetInfoAsync(filtered[parseInt(index)].id).then(setAsset);
+    const refetchAsset = useCallback(async () => {
+        await getAssetInfoAsync(filtered[index].id).then(setAsset);
+        if (index >= filtered.length - 5) {
+            await getPage();
+        }
+    }, [index]);
+
+    const onIndexChange = useCallback((index: number) => {
+        setIndex(index);
     }, []);
 
+    useEffect(() => {
+        refetchAsset();
+    }, [index]);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            (e) => setKeyboardHeight(e.endCoordinates.height)
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => setKeyboardHeight(0)
+        );
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
 
     return (
         <>
@@ -24,13 +54,9 @@ export default function ImageView() {
             }} />
             <Gallery
                 data={filtered.map(({ uri }) => uri)}
-                initialIndex={parseInt(index)}
-                onIndexChange={newIndex => {
-                    getAssetInfoAsync(filtered[newIndex].id).then(setAsset);
-                    if (newIndex >= filtered.length - 5) {
-                        getPage();
-                    }
-                }}
+                initialIndex={index}
+                onIndexChange={onIndexChange}
+                containerDimensions={{ width: windowDimensions.width, height: windowDimensions.height - keyboardHeight }}
             />
             {
                 asset &&
@@ -41,11 +67,3 @@ export default function ImageView() {
         </>
     );
 }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//     },
-// });

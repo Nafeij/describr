@@ -58,7 +58,6 @@ function AssetEntry({
     intentContext: ReturnType<typeof useIntentContext>;
     from: "search" | "album";
 }) {
-    // const { intent, setResult, isMatchingType } = useIntentManager();
     const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
     const { intent, setResult, isMatchingType } = intentContext;
     const needContent = intent?.action === ActivityAction.GET_CONTENT;

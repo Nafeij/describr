@@ -74,15 +74,19 @@ export function useFilteredAssets({
     setLoading(false);
   }, [loading, lastPage, assets, preFilters, filter]);
 
-  const refetch = useCallback(async () => {
+  const clearAll = useCallback(() => {
     if (loading) {
       return;
     }
     setLastPage(undefined);
     setAssets([]);
     setFiltered([]);
+  }, []);
+
+  const refetch = useCallback(async () => {
+    clearAll();
     await getPage();
-  }, [getPage]);
+  }, [clearAll, getPage]);
 
   useEffect(() => {
     const filtered = filter(assets);
@@ -95,9 +99,7 @@ export function useFilteredAssets({
   }, [postFilter]);
 
   useEffect(() => {
-    setLastPage(undefined);
-    setAssets([]);
-    setFiltered([]);
+    clearAll();
   }, [preFilters.album]);
 
   useEffect(() => {

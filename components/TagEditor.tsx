@@ -5,12 +5,15 @@ import { cleanTags, exifToTags, isDiffTags } from "@/lib/utils";
 import { Feather } from "@expo/vector-icons";
 import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
 import { AssetInfo } from "expo-media-library";
+import { set } from "lodash";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleProp, StyleSheet, TextInput, TextInputKeyPressEventData, TextStyle } from "react-native";
 
-export default function TagEditor({ asset }: { asset: AssetInfo }) {
+export default function TagEditor({ asset }: {
+    asset: AssetInfo,
+}) {
     const [selected, setSelected] = useState(false);
-    const oldTags = useMemo(() => cleanTags(exifToTags(asset.exif)), [asset.exif]);
+    const [oldTags, setOldTags] = useState(() => cleanTags(exifToTags(asset.exif)));
     const [tags, setTags] = useState<string[]>(() => oldTags);
     const [newTag, setNewTag] = useState('');
     const [taggingEnabled, generateTagsFromFile, { aiTags, setAITags, isLoading, error }] = useAITagging();
@@ -25,11 +28,11 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         setFocus(-1);
     }
 
-    const commit = () => {
-        const old = exifToTags(asset.exif);
+    const writeTags = async () => {
         const tags = tagsRef.current;
-        if (isDiffTags(old, tags)) {
-            writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags);
+        if (isDiffTags(exifToTags(asset.exif), tags)) {
+            await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags)
+            // await refetchAsset();
         }
     }
 
@@ -38,12 +41,13 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         inputRef?.current?.focus();
     }
 
-    const onDeselected = () => {
+    const onDeselected = async () => {
         setSelected(false);
         setNewTag('');
         unset();
         inputRef?.current?.blur();
-        commit();
+        await writeTags();
+        setOldTags(tagsRef.current);
     }
 
     const onSubmit = () => {
@@ -108,17 +112,20 @@ export default function TagEditor({ asset }: { asset: AssetInfo }) {
         generateTagsFromFile(asset.uri);
     }
 
-    // useEffect(() => {
-    //     setTags(oldTags)
-    // }, [oldTags]);
-
     useEffect(() => {
         tagsRef.current = tags;
     }, [tags]);
 
     useEffect(() => {
-        return commit;
-    }, []);
+        const newOldTags = cleanTags(exifToTags(asset.exif));
+        setOldTags(newOldTags);
+        setTags(newOldTags);
+        setFocus(-1);
+        setAITags([]);
+        return () => {
+            writeTags();
+        }
+    }, [asset]);
 
     // if (!(asset.exif?.hasOwnProperty('ImageDescription'))) return null;
 
@@ -202,12 +209,8 @@ const Tag = ({ index, tag, onPress, focus, style, icon }: {
 
 const styles = StyleSheet.create({
     outer: {
-        position: 'absolute',
+        ...StyleSheet.absoluteFillObject,
         zIndex: 1,
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "100%",
         justifyContent: 'flex-end',
     },
     container: {
