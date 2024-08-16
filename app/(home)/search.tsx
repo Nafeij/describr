@@ -1,3 +1,4 @@
+import ActionDrawer from "@/components/ActionDrawer";
 import AssetsList from "@/components/lists/AssetsList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -6,7 +7,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function Search() {
     const [color] = useThemeColor({}, ['icon']);
-    const { assets, filtered, loading, getPage, toggleSelected } = useFilteredAssetContext().search;
+    const { assets, filtered, loading, getPage, toggleSelected, refetch } = useFilteredAssetContext().search;
     const hasSelected = filtered.some(e => e.selected !== undefined);
     const numSelected = filtered.filter(e => e.selected).length;
     return (
@@ -23,6 +24,7 @@ export default function Search() {
                 toggleSelected={toggleSelected}
                 from="search"
             />
+            <ActionDrawer selected={filtered.filter(e => e.selected)} refetch={refetch} />
         </ThemedView>
     );
 }

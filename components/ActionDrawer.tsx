@@ -130,11 +130,17 @@ const DrawerButton = ({ icon, text, disabled, ...rest }: {
 
 const styles = StyleSheet.create({
     drawer: {
-        ...StyleSheet.absoluteFillObject,
         zIndex: 1,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
     },
     inner: {
-        ...StyleSheet.absoluteFillObject,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
