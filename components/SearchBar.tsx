@@ -34,7 +34,8 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
     }, [handleBack]);
 
     useEffect(() => {
-        if (query !== _query) {
+        if (query !== _query && isInSearch) {
+            // console.log("Setting query to", query);
             debouncedSetParams();
         }
     }, [query]);

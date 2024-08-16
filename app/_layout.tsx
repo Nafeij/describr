@@ -39,6 +39,9 @@ export default function RootLayout() {
     return false;
   }, [query]);
 
+  // const pathname = usePathname();
+  // console.log(`pathname [${pathname}]`);
+  // console.log(`id [${id}]\t query [${query}]\t from [${from}]\t index [${index}]`);
 
   const searchAssets = useFilteredAssets({
     preFilters: {

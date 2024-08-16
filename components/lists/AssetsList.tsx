@@ -6,7 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Asset } from "expo-media-library";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedRefreshControl } from "../ThemedRefreshControls";
@@ -23,6 +23,7 @@ export default function AssetsList({
     from: "search" | "album";
 }) {
     const intentContext = useIntentContext();
+    const params = useLocalSearchParams<{ query: string, id: string }>();
     return (
         <ThemedView style={{ flex: 1 }}>
             <FlashList
@@ -33,6 +34,7 @@ export default function AssetsList({
                         intentContext={intentContext}
                         index={index}
                         from={from}
+                        params={params}
                     />}
                 keyExtractor={(item) => item.id}
                 numColumns={4}
@@ -48,7 +50,7 @@ export default function AssetsList({
 }
 
 function AssetEntry({
-    uri, id, index, selected, toggleSelected, intentContext, from
+    uri, id, index, selected, toggleSelected, intentContext, from, params
 }: {
     uri: string,
     id: string,
@@ -57,6 +59,7 @@ function AssetEntry({
     toggleSelected: (id: string) => void,
     intentContext: ReturnType<typeof useIntentContext>;
     from: "search" | "album";
+    params: { query: string, id: string };
 }) {
     const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
     const { intent, setResult, isMatchingType } = intentContext;
@@ -78,7 +81,9 @@ function AssetEntry({
                     return;
                 }
                 router.push({
-                    pathname: `/image/[index]`, params: { index, from }
+                    // Need to make sure we don't override params
+                    // So they can still be handled by _layout.tsx
+                    pathname: `/image/[index]`, params: { index, from, ...params }
                 });
             }}
         >
