@@ -8,20 +8,18 @@ import { useMemo } from "react";
 
 export default function Search() {
     const [color] = useThemeColor({}, ['icon']);
-    const { assets, filtered, clearAll, ...rest } = useFilteredAssetContext().search;
-    const hasSelected = useMemo(() => filtered.some(e => e.selected !== undefined), [filtered]);
+    const { hasSelected, numAssets, filtered, clearAll, ...rest } = useFilteredAssetContext();
     const numSelected = useMemo(() => filtered.filter(e => e.selected).length, [filtered]);
     return (
         <ThemedView style={{ flex: 1 }}>
             <ThemedText type="defaultSemiBold" style={{ padding: 8, paddingTop: 0, color }}>{
-                !hasSelected ? `${filtered.length} of ${assets.length} items`
+                !hasSelected ? `${filtered.length} of ${numAssets} items`
                     : numSelected ? `${numSelected} selected`
                         : "Select item"
             }</ThemedText>
             <AssetsList
                 filtered={filtered}
                 {...rest}
-                from="search"
             />
             <ActionDrawer selected={filtered.filter(e => e.selected)} clearAll={clearAll} />
         </ThemedView>

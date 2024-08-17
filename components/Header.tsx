@@ -16,7 +16,7 @@ const ACTIVE_WIDTHS = {
 
 export default function Header() {
     const [color] = useThemeColor({}, ['text']);
-    const { filtered, toggleAll } = useFilteredAssetContext().search;
+    const { filtered, toggleAll } = useFilteredAssetContext();
     const path = usePathname();
     const settingWidth = useSharedValue(0);
     const selectorWidth = useSharedValue(0);

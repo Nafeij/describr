@@ -1,3 +1,4 @@
+import { defaultAssetsOptions } from "@/lib/consts";
 import { Album, Asset, getAlbumsAsync, getAssetsAsync } from "expo-media-library";
 import { createContext, useCallback, useContext, useState } from "react";
 
@@ -11,9 +12,8 @@ export default function useAlbumWithThumbs() {
             await Promise.all(
                 fetchedAlbums.map(async (album) => {
                 const albumThumbnail = await getAssetsAsync({
+                    ...defaultAssetsOptions,
                     album,
-                    mediaType: ["photo", "video"],
-                    sortBy: ['modificationTime', 'creationTime'],
                     first: 1
                 });
                 return { ...album, thumbnail: albumThumbnail.assets[0] };

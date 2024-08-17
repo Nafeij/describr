@@ -1,32 +1,41 @@
 import TagEditor from "@/components/TagEditor";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
+import { Params } from "@/lib/consts";
 import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Keyboard, useWindowDimensions } from "react-native";
 import Gallery from "react-native-awesome-gallery";
 
 
 export default function ImageView() {
-    const { index: _index, from } = useLocalSearchParams<{ index: string, from: "album" | "search" }>();
-    const filteredAssetGroup = useFilteredAssetContext();
-    const { filtered, getPage } = filteredAssetGroup[from];
-    const [index, setIndex] = useState(parseInt(_index));
+    const params = useLocalSearchParams<Params>();
+    const index = parseInt(params.index ?? '0');
+    const router = useRouter();
+    const { filtered, getPage } = useFilteredAssetContext();
     const [asset, setAsset] = useState<AssetInfo>();
     const windowDimensions = useWindowDimensions();
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     const onIndexChange = useCallback((index: number) => {
-        setIndex(index);
+        router.setParams({ index: index.toString() });
+        // router.setParams({ ...params, index: index.toString() });
     }, []);
 
     useEffect(() => {
-        (async () => {
-            await getAssetInfoAsync(filtered[index].id).then(setAsset);
+        let active = true;
+        const fetchAsset = async () => {
+            const info = await getAssetInfoAsync(filtered[index].id);
+            if (!active) return;
+            setAsset(info);
             if (index >= filtered.length - 5) {
-                await getPage();
+                getPage();
             }
-        })();
+        }
+        fetchAsset();
+        return () => {
+            active = false;
+        };
     }, [index]);
 
     useEffect(() => {
@@ -43,6 +52,8 @@ export default function ImageView() {
             keyboardDidHideListener.remove();
         };
     }, []);
+
+
 
     return (
         <>

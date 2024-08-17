@@ -1,10 +1,12 @@
+import { defaultAssetsOptions, Params } from "@/lib/consts";
+import { exifToTags } from "@/lib/utils";
 import {
   Asset,
   AssetInfo,
-  AssetsOptions,
   getAssetInfoAsync,
   getAssetsAsync,
 } from "expo-media-library";
+import { useGlobalSearchParams } from "expo-router";
 import {
   createContext,
   useCallback,
@@ -16,15 +18,9 @@ import {
 import { BackHandler } from "react-native";
 import { useSelectorState } from "./useSelector";
 
-export function useFilteredAssets({
-  preFilters,
-  postFilter,
-  fetchInfo,
-}: {
-  preFilters: AssetsOptions;
-  postFilter?: (_: AssetInfo) => boolean;
-  fetchInfo?: boolean;
-}) {
+export function useFilteredAssets() {
+  const { query, id } = useGlobalSearchParams<Params>();
+
   const [loading, setLoading] = useState(false);
   const [lastPage, setLastPage] = useState<{
     endCursor: string;
@@ -32,80 +28,103 @@ export function useFilteredAssets({
   }>();
   const [assets, setAssets] = useState<AssetInfo[]>([]);
   const [filtered, setFiltered, selectorOps] = useSelectorState<Asset>();
-  const [refetchFlag, setRefetchFlag] = useState(false);
-  const hasSelected = useMemo(() => filtered.some((e) => e.selected !== undefined), [filtered]);
-
-  const filter = useCallback(
-    (newAssets: AssetInfo[]) => {
-      if (postFilter) {
-        return newAssets.filter(postFilter) as Asset[];
-      }
-      return newAssets;
-    },
-    [postFilter]
+  const hasSelected = useMemo(
+    () => filtered.some((e) => e.selected !== undefined),
+    [filtered]
   );
 
-  const getPage = useCallback(async () => {
-    if (loading || lastPage?.hasNextPage === false) {
-      return;
-    }
-    setLoading(true);
-    let newAssets: AssetInfo[] = assets;
-    let cursor = lastPage?.endCursor;
-    while (true) {
-      const fetchedPage = await getAssetsAsync({
-        ...preFilters,
-        after: cursor,
-      });
-      cursor = fetchedPage.endCursor;
-      let fetchedAssets: AssetInfo[] = fetchedPage.assets;
-      if (fetchInfo) {
-        fetchedAssets = await Promise.all(
-          fetchedAssets.map((asset) => getAssetInfoAsync(asset.id))
-        );
+  const postFilter = useCallback(
+    (asset: AssetInfo) => {
+      if (!query || asset.filename.toLowerCase().includes(query)) {
+        return true;
       }
-      newAssets = newAssets.concat(fetchedAssets);
-      const newFiltered = filter(newAssets);
-      if (fetchedPage.hasNextPage === false || newFiltered.length > 0) {
+      if (
+        exifToTags(asset.exif).some((tag) => tag.toLowerCase().includes(query))
+      ) {
+        return true;
+      }
+      return false;
+    },
+    [query]
+  );
+
+  const _getPage = useCallback(
+    async (refetch?: boolean, signal?: { abort: boolean }) => {
+      if (!refetch && lastPage?.hasNextPage === false) {
+        return;
+      }
+      setLoading(true);
+      let newAssets: AssetInfo[] = refetch ? [] : assets;
+      let cursor = refetch ? undefined : lastPage?.endCursor;
+      while (true) {
+        const fetchedPage = await getAssetsAsync({
+          ...defaultAssetsOptions,
+          album: id,
+          after: cursor,
+        });
+        cursor = fetchedPage.endCursor;
+        let fetchedAssets: AssetInfo[] = fetchedPage.assets;
+        if (query) {
+          fetchedAssets = await Promise.all(
+            fetchedAssets.map((asset) => getAssetInfoAsync(asset.id))
+          );
+        }
+        newAssets = newAssets.concat(fetchedAssets);
+        const newFiltered = postFilter
+          ? newAssets.filter(postFilter)
+          : newAssets;
+        if (fetchedPage.hasNextPage === true && newFiltered.length === 0) {
+          continue;
+        }
+        if (signal?.abort) {
+          return;
+        }
         setLastPage(fetchedPage);
         setAssets(newAssets);
         setFiltered(newFiltered);
-        break;
+        setLoading(false);
+        return;
       }
-    }
-    setLoading(false);
-  }, [loading, lastPage, assets, preFilters, filter]);
+    },
+    [loading, lastPage, assets, id, postFilter]
+  );
 
-  const clearAll = useCallback(() => {
-    if (loading) {
-      return;
-    }
-    setLastPage(undefined);
-    setAssets([]);
-    setFiltered([]);
-    setRefetchFlag(true);
-  }, [loading]);
+  const getPage = useCallback(
+    (refetch?: boolean) => {
+      if (refetch) {
+        setLastPage(undefined);
+        setAssets([]);
+        setFiltered([]);
+      }
+      const signal = { abort: false };
+      _getPage(refetch, signal);
+      return () => {
+        signal.abort = true;
+      };
+    },
+    [_getPage]
+  );
+
+  const clearAll = () => getPage(true);
 
   useEffect(() => {
-    const filtered = filter(assets);
+    const abortHandle = getPage(true);
+    return abortHandle;
+  }, [id]);
+
+  useEffect(() => {
+    if (!postFilter) {
+      setFiltered(assets);
+      return;
+    }
+    const filtered = assets.filter(postFilter);
     if (filtered.length > 0 || assets.length < 1) {
       setFiltered(filtered);
       return;
     }
-    setFiltered([]);
-    getPage();
+    const abortHandle = getPage(false);
+    return abortHandle;
   }, [postFilter]);
-
-  useEffect(() => {
-    clearAll();
-  }, [preFilters.album]);
-
-  useEffect(() => {
-    if (refetchFlag) {
-      setRefetchFlag(false);
-      getPage();
-    }
-  }, [refetchFlag]);
 
   useEffect(() => {
     if (hasSelected) {
@@ -117,15 +136,22 @@ export function useFilteredAssets({
     }
   }, [hasSelected]);
 
-  return { assets, filtered, loading, getPage, clearAll, ...selectorOps };
+  return {
+    numAssets: assets.length,
+    filtered,
+    loading,
+    hasSelected,
+    getPage,
+    clearAll,
+    ...selectorOps,
+  };
 }
 
 export type FilteredAssetsType = ReturnType<typeof useFilteredAssets>;
 
-export const FilteredAssetContext = createContext<{
-  search: FilteredAssetsType;
-  album: FilteredAssetsType;
-}>(null as any);
+export const FilteredAssetContext = createContext<FilteredAssetsType>(
+  null as any
+);
 
 export const FilteredAssetProvider = FilteredAssetContext.Provider;
 

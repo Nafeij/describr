@@ -1,6 +1,7 @@
 import { FilteredAssetsType } from "@/hooks/useFilteredAssets";
 import { IntentContextType, useIntentContext } from "@/hooks/useIntentContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { Params } from "@/lib/consts";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { Feather } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
@@ -11,17 +12,13 @@ import { Pressable, StyleSheet } from "react-native";
 import { ThemedRefreshControl } from "../ThemedRefreshControls";
 import { ThemedView } from "../ThemedView";
 
-type AssetsListProps = Pick<FilteredAssetsType,
-    'filtered' | 'loading' | 'getPage' | 'toggleSelected'
-> & {
-    from: "search" | "album";
-};
+type AssetsListProps = Pick<FilteredAssetsType, 'filtered' | 'loading' | 'getPage' | 'toggleSelected'>;
 
 export default function AssetsList({
-    filtered, loading, getPage, toggleSelected, from
+    filtered, loading, getPage, toggleSelected
 }: AssetsListProps) {
     const intentContext = useIntentContext();
-    const params = useLocalSearchParams<{ query: string, id: string }>();
+    const params = useLocalSearchParams<Params>();
     return (
         <ThemedView style={{ flex: 1 }}>
             <FlashList
@@ -31,7 +28,6 @@ export default function AssetsList({
                         toggleSelected={toggleSelected}
                         intentContext={intentContext}
                         index={index}
-                        from={from}
                         params={params}
                     />}
                 keyExtractor={(item) => item.id}
@@ -48,7 +44,7 @@ export default function AssetsList({
 }
 
 function AssetEntry({
-    uri, id, index, selected, toggleSelected, intentContext, from, params
+    uri, id, index, selected, toggleSelected, intentContext, params
 }: {
     uri: string,
     id: string,
@@ -56,8 +52,7 @@ function AssetEntry({
     selected?: boolean,
     toggleSelected: (id: string) => void,
     intentContext: IntentContextType;
-    from: "search" | "album";
-    params: { query: string, id: string };
+    params: Params;
 }) {
     const [color, selectedColor] = useThemeColor({}, ['text', 'tint']);
     const { intent, setResult, isMatchingType } = intentContext;
@@ -81,7 +76,7 @@ function AssetEntry({
                 router.push({
                     // Need to make sure we don't override params
                     // So they can still be handled by _layout.tsx
-                    pathname: `/image/[index]`, params: { index, from, ...params }
+                    pathname: `/image/[index]`, params: { ...params, index }
                 });
             }}
         >
