@@ -13,6 +13,8 @@ export default function useAlbumWithThumbs() {
                 const albumThumbnail = await getAssetsAsync({
                     album,
                     mediaType: ["photo", "video"],
+                    sortBy: ['modificationTime', 'creationTime'],
+                    first: 1
                 });
                 return { ...album, thumbnail: albumThumbnail.assets[0] };
                 })
