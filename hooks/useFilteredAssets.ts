@@ -1,5 +1,5 @@
 import { defaultAssetsOptions, Params } from "@/lib/consts";
-import { exifToTags } from "@/lib/utils";
+import { exifToTags, extractMediaType } from "@/lib/utils";
 import {
   Asset,
   AssetInfo,
@@ -59,6 +59,7 @@ export function useFilteredAssets() {
       while (true) {
         const fetchedPage = await getAssetsAsync({
           ...defaultAssetsOptions,
+          mediaType: extractMediaType(query ?? ""),
           album: id,
           after: cursor,
         });

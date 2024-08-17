@@ -1,3 +1,6 @@
+import { MediaTypeValue } from "expo-media-library";
+import { defaultAssetsOptions } from "./consts";
+
 export type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
@@ -41,4 +44,13 @@ export const isDiffTags = (oldTags: string[], newTags: string[]) => {
     oldTags.length != newTags.length ||
     oldTags.some((tag) => !newTags.includes(tag))
   );
+};
+
+export const extractMediaType = (query: string) => {
+  const types: MediaTypeValue[] = [];
+  if (["image", "picture", "photo"].some((word) => query.includes(word)))
+    types.push("photo");
+  if (["video", "movie"].some((word) => query.includes(word)))
+    types.push("video");
+  return types.length ? types : defaultAssetsOptions.mediaType;
 };
