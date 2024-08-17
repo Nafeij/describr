@@ -38,6 +38,10 @@ export function useFilteredAssets() {
       if (!query || asset.filename.toLowerCase().includes(query)) {
         return true;
       }
+      // TODO FIX
+      // if ( !extractMediaType(query)?.includes(asset.mediaType) ) {
+      //   return false;
+      // }
       if (
         exifToTags(asset.exif).some((tag) => tag.toLowerCase().includes(query))
       ) {
@@ -59,7 +63,6 @@ export function useFilteredAssets() {
       while (true) {
         const fetchedPage = await getAssetsAsync({
           ...defaultAssetsOptions,
-          mediaType: extractMediaType(query ?? ""),
           album: id,
           after: cursor,
         });
