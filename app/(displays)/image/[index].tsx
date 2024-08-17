@@ -1,10 +1,9 @@
 import TagEditor from "@/components/TagEditor";
-import { ThemedText } from "@/components/ThemedText";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard, KeyboardAvoidingView, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Keyboard, useWindowDimensions } from "react-native";
 import Gallery from "react-native-awesome-gallery";
 
 
@@ -17,19 +16,17 @@ export default function ImageView() {
     const windowDimensions = useWindowDimensions();
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-    const refetchAsset = useCallback(async () => {
-        await getAssetInfoAsync(filtered[index].id).then(setAsset);
-        if (index >= filtered.length - 5) {
-            await getPage();
-        }
-    }, [index]);
-
     const onIndexChange = useCallback((index: number) => {
         setIndex(index);
     }, []);
 
     useEffect(() => {
-        refetchAsset();
+        (async () => {
+            await getAssetInfoAsync(filtered[index].id).then(setAsset);
+            if (index >= filtered.length - 5) {
+                await getPage();
+            }
+        })();
     }, [index]);
 
     useEffect(() => {

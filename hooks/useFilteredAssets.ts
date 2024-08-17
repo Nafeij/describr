@@ -10,6 +10,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { BackHandler } from "react-native";
@@ -31,7 +32,8 @@ export function useFilteredAssets({
   }>();
   const [assets, setAssets] = useState<AssetInfo[]>([]);
   const [filtered, setFiltered, selectorOps] = useSelectorState<Asset>();
-  const hasSelected = filtered.some((e) => e.selected !== undefined);
+  const [refetchFlag, setRefetchFlag] = useState(false);
+  const hasSelected = useMemo(() => filtered.some((e) => e.selected !== undefined), [filtered]);
 
   const filter = useCallback(
     (newAssets: AssetInfo[]) => {
@@ -81,12 +83,8 @@ export function useFilteredAssets({
     setLastPage(undefined);
     setAssets([]);
     setFiltered([]);
-  }, []);
-
-  const refetch = useCallback(async () => {
-    clearAll();
-    await getPage();
-  }, [clearAll, getPage]);
+    setRefetchFlag(true);
+  }, [loading]);
 
   useEffect(() => {
     const filtered = filter(assets);
@@ -103,6 +101,13 @@ export function useFilteredAssets({
   }, [preFilters.album]);
 
   useEffect(() => {
+    if (refetchFlag) {
+      setRefetchFlag(false);
+      getPage();
+    }
+  }, [refetchFlag]);
+
+  useEffect(() => {
     if (hasSelected) {
       const sub = BackHandler.addEventListener("hardwareBackPress", () => {
         selectorOps.clearSelection();
@@ -112,12 +117,14 @@ export function useFilteredAssets({
     }
   }, [hasSelected]);
 
-  return { assets, filtered, loading, getPage, refetch, ...selectorOps };
+  return { assets, filtered, loading, getPage, clearAll, ...selectorOps };
 }
 
+export type FilteredAssetsType = ReturnType<typeof useFilteredAssets>;
+
 export const FilteredAssetContext = createContext<{
-  search: ReturnType<typeof useFilteredAssets>;
-  album: ReturnType<typeof useFilteredAssets>;
+  search: FilteredAssetsType;
+  album: FilteredAssetsType;
 }>(null as any);
 
 export const FilteredAssetProvider = FilteredAssetContext.Provider;

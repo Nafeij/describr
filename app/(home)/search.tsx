@@ -4,12 +4,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useMemo } from "react";
 
 export default function Search() {
     const [color] = useThemeColor({}, ['icon']);
-    const { assets, filtered, loading, getPage, toggleSelected, refetch } = useFilteredAssetContext().search;
-    const hasSelected = filtered.some(e => e.selected !== undefined);
-    const numSelected = filtered.filter(e => e.selected).length;
+    const { assets, filtered, clearAll, ...rest } = useFilteredAssetContext().search;
+    const hasSelected = useMemo(() => filtered.some(e => e.selected !== undefined), [filtered]);
+    const numSelected = useMemo(() => filtered.filter(e => e.selected).length, [filtered]);
     return (
         <ThemedView style={{ flex: 1 }}>
             <ThemedText type="defaultSemiBold" style={{ padding: 8, paddingTop: 0, color }}>{
@@ -19,12 +20,10 @@ export default function Search() {
             }</ThemedText>
             <AssetsList
                 filtered={filtered}
-                loading={loading}
-                getPage={getPage}
-                toggleSelected={toggleSelected}
+                {...rest}
                 from="search"
             />
-            <ActionDrawer selected={filtered.filter(e => e.selected)} refetch={refetch} />
+            <ActionDrawer selected={filtered.filter(e => e.selected)} clearAll={clearAll} />
         </ThemedView>
     );
 }

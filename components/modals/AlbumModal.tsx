@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import AlbumsList from "../lists/AlbumsList";
 import BaseModal from "./BaseModal";
 
-export default function AlbumModal({ title, isVisible = false, onSelect, onClose, style }: {
+export default function AlbumModal({ title, onSelect, onClose, style }: {
     title: string,
     onSelect?: (album: AlbumThumb) => void,
 } & ComponentProps<typeof BaseModal>) {

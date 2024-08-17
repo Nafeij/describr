@@ -54,7 +54,9 @@ export function useIntent() {
   return { intent, setResult, isMatchingType };
 }
 
-const IntentContext = createContext<ReturnType<typeof useIntent>>(
+export type IntentContextType = ReturnType<typeof useIntent>;
+
+const IntentContext = createContext<IntentContextType>(
   {} as any
 );
 

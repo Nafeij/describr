@@ -4,7 +4,7 @@ import { ComponentProps } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import BaseModal from "./BaseModal";
 
-export default function ConfirmModal({ title, isVisible = false, onConfirm, onClose: onCancel, style, ...rest }: {
+export default function ConfirmModal({ title, onConfirm, onClose: onCancel, style, ...rest }: {
     title: string,
     onConfirm?: () => void,
     onClose: () => void,

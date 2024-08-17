@@ -13,11 +13,10 @@ import ConfirmModal from "./modals/ConfirmModal";
 import { ThemedText } from "./ThemedText";
 
 export default function ActionDrawer({
-    selected,
-    refetch,
+    selected, clearAll
 }: {
     selected: AssetInfo[];
-    refetch: () => Promise<void>;
+    clearAll: () => void;
 }) {
     const [backgroundColor] = useThemeColor({}, ['background']);
     const { intent, setResult, isMatchingType } = useIntentContext();
@@ -41,10 +40,10 @@ export default function ActionDrawer({
     const addFiles = (copy: boolean) => (
         async (album: AlbumThumb) => {
             setLoading(loading => ({ ...loading, moveTo: !copy, copyTo: copy }));
-            // TODO: Allow moving to folders in root directory
             try {
                 if (await addAssetsToAlbumAsync(selected, album.id, copy)) {
-                    refetch().then(fetchAlbums);
+                    clearAll();
+                    fetchAlbums();
                 }
             } catch (error) {
                 console.error("Error adding files to album", error);
@@ -58,7 +57,8 @@ export default function ActionDrawer({
         setLoading(loading => ({ ...loading, delete: true }));
         try {
             if (await deleteAssetsAsync(selected)) {
-                refetch().then(fetchAlbums);
+                clearAll();
+                fetchAlbums();
             }
         } catch (error) {
             console.error("Error deleting files", error);

@@ -5,8 +5,7 @@ import { cleanTags, exifToTags, isDiffTags } from "@/lib/utils";
 import { Feather } from "@expo/vector-icons";
 import { ExifTags, writeAsync } from '@lodev09/react-native-exify';
 import { AssetInfo } from "expo-media-library";
-import { set } from "lodash";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleProp, StyleSheet, TextInput, TextInputKeyPressEventData, TextStyle } from "react-native";
 
 export default function TagEditor({ asset }: {
@@ -32,7 +31,6 @@ export default function TagEditor({ asset }: {
         const tags = tagsRef.current;
         if (isDiffTags(exifToTags(asset.exif), tags)) {
             await writeAsync(asset.uri, { ImageDescription: tags.join(",") } as ExifTags)
-            // await refetchAsset();
         }
     }
 
@@ -43,8 +41,8 @@ export default function TagEditor({ asset }: {
 
     const onDeselected = async () => {
         setSelected(false);
-        setNewTag('');
         unset();
+        setNewTag('');
         inputRef?.current?.blur();
         await writeTags();
         setOldTags(tagsRef.current);
@@ -76,7 +74,7 @@ export default function TagEditor({ asset }: {
         }
     }
 
-    const onTagPress = (i?: number) => {
+    const onTagPress = useCallback((i?: number) => {
         setSelected(true);
         setConfirmUndo(false);
         if (i === undefined) return;
@@ -86,7 +84,7 @@ export default function TagEditor({ asset }: {
         }
         setFocus(i);
         inputRef?.current?.focus();
-    }
+    }, [focus]);
 
     const onUndo = () => {
         setSelected(true);
@@ -100,9 +98,10 @@ export default function TagEditor({ asset }: {
         setAITags([]);
     }
 
+    const onResetSelection = useCallback(() => { setSelected(true); unset() }, []);
+
     const onGenerateOrAdd = () => {
-        unset();
-        setSelected(true);
+        onResetSelection();
         if (isLoading) return;
         if (aiTags.length) {
             setTags([...tags, ...aiTags]);
@@ -110,7 +109,7 @@ export default function TagEditor({ asset }: {
             return
         }
         generateTagsFromFile(asset.uri);
-    }
+    };
 
     useEffect(() => {
         tagsRef.current = tags;
@@ -153,7 +152,7 @@ export default function TagEditor({ asset }: {
                     placeholder="Add tag"
                     placeholderTextColor={mutedColor}
                     value={newTag}
-                    onPress={() => { setSelected(true); unset() }}
+                    onPress={onResetSelection}
                     onChangeText={setNewTag}
                     onSubmitEditing={onSubmit}
                     blurOnSubmit={false}
@@ -164,9 +163,11 @@ export default function TagEditor({ asset }: {
                     taggingEnabled &&
                     <>
                         {
-                            aiTags.map((tag, i) => <Tag key={i} tag={tag} onPress={() => { setSelected(true); unset() }} style={{
-                                backgroundColor: generateColor
-                            }} />)
+                            aiTags.map((tag, i) =>
+                                <Tag key={i} tag={tag} onPress={onResetSelection} style={{
+                                    backgroundColor: generateColor
+                                }} />
+                            )
                         }
                         <Tag tag={
                             error ? error.message

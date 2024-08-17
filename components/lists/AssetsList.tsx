@@ -1,27 +1,25 @@
-import { useIntentContext } from "@/hooks/useIntentContext";
-import { Selectable } from "@/hooks/useSelector";
+import { FilteredAssetsType } from "@/hooks/useFilteredAssets";
+import { IntentContextType, useIntentContext } from "@/hooks/useIntentContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ActivityAction } from "@/modules/intent-manager/src/IntentManager.types";
 import { Feather } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { Asset } from "expo-media-library";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedRefreshControl } from "../ThemedRefreshControls";
 import { ThemedView } from "../ThemedView";
 
+type AssetsListProps = Pick<FilteredAssetsType,
+    'filtered' | 'loading' | 'getPage' | 'toggleSelected'
+> & {
+    from: "search" | "album";
+};
 
 export default function AssetsList({
     filtered, loading, getPage, toggleSelected, from
-}: {
-    filtered: (Asset & Selectable)[];
-    loading: boolean;
-    getPage: () => void;
-    toggleSelected: (id: string) => void;
-    from: "search" | "album";
-}) {
+}: AssetsListProps) {
     const intentContext = useIntentContext();
     const params = useLocalSearchParams<{ query: string, id: string }>();
     return (
@@ -57,7 +55,7 @@ function AssetEntry({
     index: number,
     selected?: boolean,
     toggleSelected: (id: string) => void,
-    intentContext: ReturnType<typeof useIntentContext>;
+    intentContext: IntentContextType;
     from: "search" | "album";
     params: { query: string, id: string };
 }) {

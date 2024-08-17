@@ -6,13 +6,14 @@ import { useFilteredAssetContext } from "@/hooks/useFilteredAssets";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Feather } from "@expo/vector-icons";
 import { Link, Stack, useGlobalSearchParams } from "expo-router";
+import { useMemo } from "react";
 import { View } from "react-native";
 
 export default function AlbumView() {
     const { id, title, count } = useGlobalSearchParams<{ id?: string, title?: string, count?: string }>();
     const [color, muted] = useThemeColor({}, ['text', 'icon']);
-    const { filtered, loading, getPage, toggleSelected, toggleAll, clearSelection, refetch } = useFilteredAssetContext().album;
-    const hasSelected = filtered.some(e => e.selected !== undefined);
+    const { filtered, toggleAll, clearSelection, clearAll, ...rest } = useFilteredAssetContext().album;
+    const hasSelected = useMemo(() => filtered.some(e => e.selected !== undefined), [filtered]);
     return (
         <>
             {hasSelected ? <SelectorHeader
@@ -41,12 +42,10 @@ export default function AlbumView() {
             }} />}
             <AssetsList
                 filtered={filtered}
-                loading={loading}
-                getPage={getPage}
-                toggleSelected={toggleSelected}
+                {...rest}
                 from="album"
             />
-            <ActionDrawer selected={filtered.filter(e => e.selected)} refetch={refetch} />
+            <ActionDrawer selected={filtered.filter(e => e.selected)} clearAll={clearAll} />
         </>
     );
 }
