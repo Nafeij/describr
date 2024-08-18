@@ -8,13 +8,10 @@ export default function HomeLayout() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
-        <Header />
-        <Stack screenOptions={{
-          headerShown: false,
-        }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="search" />
-        </Stack>
+      <Header />
+      <Stack screenOptions={{
+        headerShown: false,
+      }} />
     </SafeAreaView>
   );
 }

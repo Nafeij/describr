@@ -54,28 +54,30 @@ export const SearchBar = ({ styles: propStyles }: { styles?: StyleProp<ViewStyle
         }
     }, [isInSearch]);
 
-    return <View style={[styles.container, { backgroundColor }, propStyles]}>
-        <Feather
-            name={(selected || query || isInSearch) ? "x" : "search"}
-            size={20}
-            color={mutedColor}
-            style={{ marginLeft: 1 }}
-            onPress={() => !handleBack() && router.canGoBack() && router.back()}
-        />
-        <TextInput
-            ref={ref}
-            placeholder="Search"
-            style={{
-                color: color,
-                flex: 1,
-            }}
-            value={query}
-            onFocus={() => setSelected(true)}
-            onBlur={() => setSelected(false)}
-            onChangeText={query => setQuery(query)}
-            placeholderTextColor={mutedColor}
-        />
-    </View>
+    return (
+        <View style={[styles.container, { backgroundColor }, propStyles]}>
+            <Feather
+                name={(selected || query || isInSearch) ? "x" : "search"}
+                size={20}
+                color={mutedColor}
+                style={{ marginLeft: 1 }}
+                onPress={() => !handleBack() && router.canGoBack() && router.back()}
+            />
+            <TextInput
+                ref={ref}
+                placeholder="Search"
+                style={{
+                    color: color,
+                    flex: 1,
+                }}
+                value={query}
+                onFocus={() => setSelected(true)}
+                onBlur={() => setSelected(false)}
+                onChangeText={query => setQuery(query)}
+                placeholderTextColor={mutedColor}
+            />
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({

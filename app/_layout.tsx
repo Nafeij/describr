@@ -51,12 +51,7 @@ export default function RootLayout() {
                 <GestureHandlerRootView>
                   <Stack screenOptions={{
                     headerShown: false,
-                  }}>
-                    <Stack.Screen name="(home)" />
-                    <Stack.Screen name="(displays)" />
-                    <Stack.Screen name="settings" />
-                    <Stack.Screen name="+not-found" />
-                  </Stack>
+                  }}/>
                 </GestureHandlerRootView>
               </ThemedView>
             </FilteredAssetProvider>
