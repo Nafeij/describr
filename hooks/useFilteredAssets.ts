@@ -27,7 +27,7 @@ export function useFilteredAssets() {
     hasNextPage: boolean;
   }>();
   const [assets, setAssets] = useState<AssetInfo[]>([]);
-  const [filtered, setFiltered, selectorOps] = useSelectorState<Asset>();
+  const [filtered, setFiltered, selectorOps] = useSelectorState<AssetInfo>();
   const hasSelected = useMemo(
     () => filtered.some((e) => e.selected !== undefined),
     [filtered]
@@ -117,7 +117,7 @@ export function useFilteredAssets() {
   }, [id]);
 
   useEffect(() => {
-    if (!postFilter) {
+    if (!query) {
       setFiltered(assets);
       return;
     }
