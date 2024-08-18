@@ -1,10 +1,10 @@
 import { defaultAssetsOptions, Params } from "@/lib/consts";
-import { exifToTags, extractMediaType } from "@/lib/utils";
+import { exifToTags } from "@/lib/utils";
 import {
-  Asset,
   AssetInfo,
+  AssetsOptions,
   getAssetInfoAsync,
-  getAssetsAsync,
+  getAssetsAsync
 } from "expo-media-library";
 import { useGlobalSearchParams } from "expo-router";
 import {
@@ -19,7 +19,7 @@ import { BackHandler } from "react-native";
 import { useSelectorState } from "./useSelector";
 
 export function useFilteredAssets() {
-  const { query, id } = useGlobalSearchParams<Params>();
+  const { query, id, mediaType } = useGlobalSearchParams<Params>();
 
   const [loading, setLoading] = useState(false);
   const [lastPage, setLastPage] = useState<{
@@ -64,6 +64,7 @@ export function useFilteredAssets() {
         const fetchedPage = await getAssetsAsync({
           ...defaultAssetsOptions,
           album: id,
+          mediaType: mediaType?.split(",") as AssetsOptions["mediaType"] ?? defaultAssetsOptions.mediaType,
           after: cursor,
         });
         cursor = fetchedPage.endCursor;
@@ -90,7 +91,7 @@ export function useFilteredAssets() {
         return;
       }
     },
-    [loading, lastPage, assets, id, postFilter]
+    [loading, lastPage, assets, id, postFilter, query, mediaType]
   );
 
   const getPage = useCallback(
@@ -114,7 +115,7 @@ export function useFilteredAssets() {
   useEffect(() => {
     const abortHandle = getPage(true);
     return abortHandle;
-  }, [id]);
+  }, [id, mediaType]);
 
   useEffect(() => {
     if (!query) {

@@ -1,4 +1,4 @@
-import { AssetsOptions } from "expo-media-library";
+import { AssetsOptions, MediaTypeValue } from "expo-media-library";
 
 export const defaultAssetsOptions = {
   mediaType: ["photo", "video"],
@@ -9,7 +9,10 @@ export const defaultAssetsOptions = {
 export type Params = {
   id?: string;
   query?: string;
+  mediaType?: string;
+
   index?: string;
+
   title?: string;
   count?: string;
 };

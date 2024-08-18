@@ -10,7 +10,7 @@ import { Asset, AssetInfo, getAssetInfoAsync } from "expo-media-library";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, LayoutRectangle, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Keyboard, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
 import Gallery, { RenderItemInfo } from "react-native-awesome-gallery";
 
 export default function ImageView() {
@@ -99,17 +99,6 @@ export default function ImageView() {
                 asset?.mediaType === 'photo' && <TagEditor asset={asset} />
             }
         </>
-        // <View style={{ flex: 1, position: 'relative' }}>
-        //     <FlashList
-        //         data={[asset]}
-        //         renderItem={({ item}) =>
-        //             <Video item={item} setImageDimensions={() => { }} />
-        //         }
-        //         keyExtractor={(item) => item.id}
-        //         estimatedItemSize={20}
-
-        //     />
-        // </View>
     );
 }
 
@@ -161,7 +150,7 @@ const Video = ({
         <>
             <VideoView
                 player={player}
-                style={[StyleSheet.absoluteFillObject, { backgroundColor: 'red' }]}
+                style={StyleSheet.absoluteFillObject}
                 contentFit="contain"
                 nativeControls={false}
                 onLayout={(e) => {
