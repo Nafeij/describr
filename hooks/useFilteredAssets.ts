@@ -75,14 +75,12 @@ export function useFilteredAssets() {
           );
         }
         newAssets = newAssets.concat(fetchedAssets);
-        const newFiltered = postFilter
-          ? newAssets.filter(postFilter)
-          : newAssets;
-        if (fetchedPage.hasNextPage === true && newFiltered.length === 0) {
-          continue;
-        }
+        const newFiltered = newAssets.filter(postFilter);
         if (signal?.abort) {
           return;
+        }
+        if (fetchedPage.hasNextPage === true && newFiltered.length === 0) {
+          continue;
         }
         setLastPage(fetchedPage);
         setAssets(newAssets);
@@ -123,11 +121,11 @@ export function useFilteredAssets() {
       return;
     }
     const filtered = assets.filter(postFilter);
-    if (filtered.length > 0 || assets.length < 1) {
+    if (filtered.length > 0 || assets.length == 1) {
       setFiltered(filtered);
       return;
     }
-    const abortHandle = getPage(false);
+    const abortHandle = getPage(true);
     return abortHandle;
   }, [postFilter]);
 
