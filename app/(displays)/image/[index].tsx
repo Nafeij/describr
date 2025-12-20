@@ -93,7 +93,7 @@ export default function ImageView() {
                 pinchEnabled={asset?.mediaType !== 'video'}
                 doubleTapEnabled={asset?.mediaType !== 'video'}
                 disableVerticalSwipe={asset?.mediaType === 'video'}
-                style={{ backgroundColor: 'transparent' }}
+                style={{ backgroundColor: 'red' }}
             />
             {
                 asset?.mediaType === 'photo' && <TagEditor asset={asset} />

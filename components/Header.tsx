@@ -15,7 +15,7 @@ const ACTIVE_WIDTHS = {
     MAIN: 36,
     SELECT: 78,
     SELECT_ALL: 92,
-    MEDIA: 45,
+    MEDIA: 60,
 };
 
 export default function Header() {

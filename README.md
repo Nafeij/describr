@@ -1,24 +1,19 @@
-# Welcome to your Expo app 👋
+# Describr
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Image gallery app that supports tagging (including AI-generated tags) and search.
 
-## Get started
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). Currently only supports Android; it uses a custom module to inject tags into Exif metadata so a [development build](https://docs.expo.dev/develop/development-builds/introduction/) is required:
 
-1. Install dependencies
+```bash
+yarn install
 
-   ```bash
-   npm install
-   ```
+# Setup SDK and an emulator / phone
 
-2. Start the app
+npx expo run:android
+```
 
-   ```bash
-    npx expo start
-   ```
+Here are some other ways to develop apps wth Expo:
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
@@ -34,6 +29,22 @@ npm run reset-project
 ```
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+
+## Start from scratch
+
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. Start the app
+
+   ```bash
+    npx expo start # --tunnel for WSL
+   ```
+
+In the output, you'll find options to open the app in a
 
 ## Learn more
 
